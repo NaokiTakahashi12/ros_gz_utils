@@ -107,44 +107,6 @@ def generate_launch_description():
         )
     )
 
-    #ld.add_action(
-    #    GroupAction(actions = [
-    #        IncludeLaunchDescription(
-    #            AnyLaunchDescriptionSource([
-    #                ThisLaunchFileDir(), '/ignition_bridge.launch.py'
-    #            ]),
-    #            launch_arguments = {
-    #                'with_stf': 'false',
-    #                'ign_topic': '/world/default/clock',
-    #                'ros_topic': '/clock',
-    #                'convert_args': 'rosgraph_msgs/msg/Clock[ignition.msgs.Clock',
-    #            }.items()
-    #        ),
-    #        IncludeLaunchDescription(
-    #            AnyLaunchDescriptionSource([
-    #                ThisLaunchFileDir(), '/ignition_bridge.launch.py'
-    #            ]),
-    #            launch_arguments = {
-    #                'with_stf': 'false',
-    #                'ign_topic': '/world/default/pose/info',
-    #                'ros_topic': 'tf_static',
-    #                'convert_args': 'tf2_msgs/msg/TFMessage[ignition.msgs.Pose_V',
-    #            }.items()
-    #        ),
-    #        IncludeLaunchDescription(
-    #            AnyLaunchDescriptionSource([
-    #                ThisLaunchFileDir(), '/ignition_bridge.launch.py'
-    #            ]),
-    #            launch_arguments = {
-    #                'with_stf': 'false',
-    #                'ign_topic': '/world/default/dynamic_pose/info',
-    #                'ros_topic': 'tf',
-    #                'convert_args': 'tf2_msgs/msg/TFMessage[ignition.msgs.Pose_V',
-    #            }.items()
-    #        )
-    #    ])
-    #)
-
     return ld
 
 if __name__ == '__main__':
