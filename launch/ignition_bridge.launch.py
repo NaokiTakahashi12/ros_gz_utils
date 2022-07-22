@@ -85,7 +85,7 @@ def generate_launch_description():
     ld.add_action(
         DeclareLaunchArgument(
             'bridge_node_name',
-            default_value = 'parameter_bridge',
+            default_value = AnonName('parameter_bridge'),
             description = 'Bridge node name (string)'
         )
     )
@@ -102,13 +102,14 @@ def generate_launch_description():
             Node(
                 package = 'ros_ign_bridge',
                 executable = 'parameter_bridge',
-                name = AnonName(
-                    LaunchConfiguration('bridge_node_name')
-                ),
+                name = LaunchConfiguration('bridge_node_name'),
                 on_exit = [
                     exit_event
                 ],
                 output = output,
+                parameters = [
+                    {'use_sim_time': True}
+                ],
                 arguments = [
                     [ign_topic, '@', convert_args]
                 ],
@@ -123,6 +124,9 @@ def generate_launch_description():
                     LaunchConfiguration('stf_node_name')
                 ),
                 output = output,
+                parameters = [
+                    {'use_sim_time': True}
+                ],
                 arguments = [
                     '0', '0', '0', '0', '0', '0',
                     ros_frame_id, ign_frame_id

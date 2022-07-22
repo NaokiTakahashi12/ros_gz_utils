@@ -172,7 +172,7 @@ def generate_launch_description():
                 ]),
                 launch_arguments = {
                     'with_stf': 'false',
-                    'ign_topic': '/world/default/clock',
+                    'ign_topic': ['/world/', world_name, '/clock'],
                     'ros_topic': '/clock',
                     'convert_args': 'rosgraph_msgs/msg/Clock[ignition.msgs.Clock',
                 }.items()
