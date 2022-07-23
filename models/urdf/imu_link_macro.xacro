@@ -16,7 +16,7 @@
       <xacro:insert_block name="origin"/>
     </joint>
     <gazebo reference="${prefix}_imu_link">
-      <sensor name="${prefix}_imu_link" type="imu">
+      <sensor name="${prefix}_imu" type="imu">
         <update_rate>50</update_rate>
         <imu>
           <angular_velocity>
