@@ -28,6 +28,7 @@
       <axis xyz="0 0 1"/>
       <xacro:insert_block name="origin"/>
       <limit effort="0.5" velocity="1.0"/>
+      <dynamics damping="0.01" friction="0.001"/>
     </joint>
   </xacro:macro>
 </robot>
