@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <sdf version="1.6">
   <world name="ground_plane">
-    <physics name="3.0ms" type="ignored">
-      <max_step_size>3.0e-3</max_step_size>
+    <physics name="10.0ms" type="ignored">
+      <max_step_size>10.0e-3</max_step_size>
       <real_time_factor>1</real_time_factor>
       <dart>
         <collision_detector>bullet</collision_detector>
@@ -16,13 +16,8 @@
         <filename>libignition-physics-dartsim-plugin.so</filename>
       </engine>
     </plugin>
-    <plugin filename="libignition-gazebo-sensors-system.so" name="ignition::gazebo::systems::Sensors"/>
     <plugin filename="libignition-gazebo-user-commands-system.so" name="ignition::gazebo::systems::UserCommands"/>
     <plugin filename="libignition-gazebo-scene-broadcaster-system.so" name="ignition::gazebo::systems::SceneBroadcaster"/>
-    <plugin filename="ignition-gazebo-contact-system" name="ignition::gazebo::systems::Contact"/>
-    <plugin filename="libignition-gazebo-imu-system.so" name="ignition::gazebo::systems::Imu"/>
-    <plugin filename="ignition-gazebo-magnetometer-system" name="ignition::gazebo::systems::Magnetometer"/>
-    <plugin filename="ignition-gazebo-navsat-system" name="ignition::gazebo::systems::NavSat"/>
     <scene>
       <ambient>1.0 1.0 1.0</ambient>
       <background>0.8 0.8 0.8</background>
