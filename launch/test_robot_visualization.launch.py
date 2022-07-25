@@ -75,6 +75,9 @@ def generate_launch_description():
                     LaunchConfiguration('rviz2_node_name')
                 ),
                 output = output,
+                parameters = [
+                    {'use_sim_time': True},
+                ],
                 arguments = [
                     '-d',
                     LaunchConfiguration('rviz2_config_file')
