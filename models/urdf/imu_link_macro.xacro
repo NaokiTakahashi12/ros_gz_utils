@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:macro name="imu_link_macro" params="*parent *origin prefix">
+    <link name="${prefix}_imu_link">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="0.01"/>
+        <inertia ixx="0.0025" ixy="0" ixz="0" iyy="0.0025" iyz="0" izz="0.005"/>
+      </inertial>
+    </link>
+    <joint name="${prefix}_imu_joint" type="fixed">
+      <xacro:insert_block name="parent"/>
+      <child link="${prefix}_imu_link"/>
+      <axis xyz="0 0 1"/>
+      <xacro:insert_block name="origin"/>
+    </joint>
+    <gazebo reference="${prefix}_imu_link">
+      <sensor name="${prefix}_imu" type="imu">
+        <update_rate>50</update_rate>
+        <imu>
+          <angular_velocity>
+            <x>
+              <noise type="gaussian">
+                <mean>0</mean>
+                <stddev>0.125</stddev>
+              </noise>
+            </x>
+            <y>
+              <noise type="gaussian">
+                <mean>0</mean>
+                <stddev>0.125</stddev>
+              </noise>
+            </y>
+            <z>
+              <noise type="gaussian">
+                <mean>0</mean>
+                <stddev>0.125</stddev>
+              </noise>
+            </z>
+          </angular_velocity>
+          <linear_acceleration>
+            <x>
+              <noise type="gaussian">
+                <mean>0</mean>
+                <stddev>0.125</stddev>
+              </noise>
+            </x>
+            <y>
+              <noise type="gaussian">
+                <mean>0</mean>
+                <stddev>0.125</stddev>
+              </noise>
+            </y>
+            <z>
+              <noise type="gaussian">
+                <mean>0.001</mean>
+                <stddev>0.125</stddev>
+              </noise>
+            </z>
+          </linear_acceleration>
+        </imu>
+      </sensor>
+    </gazebo>
+  </xacro:macro>
+  <gazebo>
+    <plugin filename="libignition-gazebo-imu-system" name="ignition::gazebo::systems::Imu"/>
+    <plugin filename="ignition-gazebo-magnetometer-system" name="ignition::gazebo::systems::Magnetometer"/>
+  </gazebo>
+</robot>

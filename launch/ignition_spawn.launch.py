@@ -59,7 +59,7 @@ def generate_launch_description():
     ld.add_action(
         DeclareLaunchArgument(
             'use_sim_time',
-            default_value = ['false'],
+            default_value = ['true'],
             description = 'Subscribe /clock topic (boolean)'
         )
     )
@@ -92,16 +92,11 @@ def generate_launch_description():
     )
     ld.add_action(
         DeclareLaunchArgument(
-            'robot_state_publisher_node_name',
-            default_value = ['robot_state_publisher'],
-            description = 'Robot state publisher node name (string)'
-        )
-    )
-    ld.add_action(
-        DeclareLaunchArgument(
-            'joint_state_publisher_node_name',
-            default_value = ['joint_state_publisher'],
-            description = 'Joint state publisher node name (string)'
+            'joint_state_publisher_config_file',
+            default_value = [
+                os.path.join(this_pkg_share_dir, 'config', 'joint_state_sources.yaml')
+            ],
+            description = 'Joint state publisher node parameter file (string)'
         )
     )
     ld.add_action(
@@ -152,33 +147,46 @@ def generate_launch_description():
             PushRosNamespace(
                 namespace = namespace
             ),
+            # TODO Add prefix node name
             Node(
                 package = 'robot_state_publisher',
                 executable = 'robot_state_publisher',
-                name = AnonName(LaunchConfiguration('robot_state_publisher_node_name')),
+                name = 'robot_state_publisher',
                 output = output,
                 parameters = [
+                    {'use_sim_time': use_sim_time},
                     {'ignore_timestamp': False},
                     {'publish_frequency': 10.0},
                     {'robot_description': Command(['xacro ', urdf_file])}
+                ],
+                # TODO https://github.com/ros/joint_state_publisher/issues/82
+                remappings = [
+                    ('joint_states', 'test_bot_joint_state_bridge/joint_states')
                 ]
             ),
-            Node(
-                package = 'joint_state_publisher',
-                executable = 'joint_state_publisher',
-                name = AnonName(LaunchConfiguration('joint_state_publisher_node_name')),
-                output = output,
-                parameters = [
-                    {'publish_default_efforts': True},
-                    {'publish_default_velocities': True},
-                    {'publish_default_positions': True}
-                ]
-            ),
+            # TODO https://github.com/ros/joint_state_publisher/issues/82
+            #Node(
+            #    package = 'joint_state_publisher',
+            #    executable = 'joint_state_publisher',
+            #    name = 'joint_state_merger',
+            #    output = output,
+            #    parameters = [
+            #        {'use_sim_time': use_sim_time},
+            #        {'ignore_timestamp': False},
+            #        {'publish_default_efforts': True},
+            #        {'publish_default_velocities': True},
+            #        {'publish_default_positions': True},
+            #        LaunchConfiguration('joint_state_publisher_config_file')
+            #    ]
+            #),
             Node(
                 package = 'ros_ign_gazebo',
                 executable = 'create',
                 name = AnonName(LaunchConfiguration('spawn_node_name')),
                 output = output,
+                parameters = [
+                    {'use_sim_time': use_sim_time},
+                ],
                 arguments = [
                     '-world', world_name,
                     '-topic', 'robot_description',

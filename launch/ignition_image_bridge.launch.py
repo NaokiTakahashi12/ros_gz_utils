@@ -28,14 +28,12 @@ def generate_launch_description():
 
     ign_topic = LaunchConfiguration('ign_topic')
     ros_topic = LaunchConfiguration('ros_topic')
-    convert_args = LaunchConfiguration('convert_args')
     ign_frame_id = LaunchConfiguration('ign_frame_id')
     ros_frame_id = LaunchConfiguration('ros_frame_id')
 
     exit_event = EmitEvent(
         event = Shutdown()
     )
-    bridge_node_argument = [ign_topic, '@', convert_args]
 
     ld = LaunchDescription()
 
@@ -56,12 +54,6 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'ros_topic',
             description = 'ROS2 topic name (string)'
-        )
-    )
-    ld.add_action(
-        DeclareLaunchArgument(
-            'convert_args',
-            description = 'Convert message argument for ros_ign parameter_bridge (string)'
         )
     )
     ld.add_action(
@@ -92,7 +84,7 @@ def generate_launch_description():
     ld.add_action(
         DeclareLaunchArgument(
             'stf_node_name',
-            default_value = 'stf',
+            default_value = AnonName('stf'),
             description = 'Static transform publisher node name (string)'
         )
     )
@@ -100,8 +92,8 @@ def generate_launch_description():
     ld.add_action(
         GroupAction([
             Node(
-                package = 'ros_ign_bridge',
-                executable = 'parameter_bridge',
+                package = 'ros_ign_image',
+                executable = 'image_bridge',
                 name = LaunchConfiguration('bridge_node_name'),
                 on_exit = [
                     exit_event
@@ -110,19 +102,21 @@ def generate_launch_description():
                 parameters = [
                     {'use_sim_time': True}
                 ],
+                # TODO https://github.com/gazebosim/ros_gz/pull/278
                 arguments = [
-                    [ign_topic, '@', convert_args]
+                    [ign_topic]
                 ],
                 remappings = [
-                    (ign_topic, ros_topic)
+                    (ign_topic, ros_topic),
+                    ([ign_topic, '/compressed'], [ros_topic, '/compressed']),
+                    ([ign_topic, '/compressedDepth'], [ros_topic, '/compressedDepth']),
+                    ([ign_topic, '/theora'], [ros_topic, '/theora'])
                 ]
             ),
             Node(
                 package = 'tf2_ros',
                 executable = 'static_transform_publisher',
-                name = AnonName(
-                    LaunchConfiguration('stf_node_name')
-                ),
+                name = LaunchConfiguration('stf_node_name'),
                 output = output,
                 parameters = [
                     {'use_sim_time': True}
