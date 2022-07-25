@@ -77,9 +77,22 @@
     <parent link="lower_body_link"/>
     <origin xyz="-0.2 0 0" rpy="0 0 0"/>
   </xacro:swivel_caster>
-  <xacro:include filename="$(find ros_ign_utils)/models/urdf/camera.xacro"/>
-  <xacro:camera prefix="front">
+  <xacro:include filename="$(find ros_ign_utils)/models/urdf/camera_link_macro.xacro"/>
+  <xacro:camera_link_macro prefix="front">
     <parent link="upper_body_link"/>
     <origin xyz="0.28 0 0.1" rpy="0 0 0"/>
-  </xacro:camera>
+  </xacro:camera_link_macro>
+  <xacro:include filename="$(find ros_ign_utils)/models/urdf/imu_link_macro.xacro"/>
+  <xacro:imu_link_macro prefix="upper">
+    <parent link="upper_body_link"/>
+    <origin xyz="0.05 0 0" rpy="0 0 0"/>
+  </xacro:imu_link_macro>
+  <xacro:imu_link_macro prefix="lower">
+    <parent link="lower_body_link"/>
+    <origin xyz="-0.05 0 0" rpy="0 0 0"/>
+  </xacro:imu_link_macro>
+  <gazebo>
+    <plugin filename="ignition-gazebo-joint-state-publisher-system" name="ignition::gazebo::systems::JointStatePublisher">
+    </plugin>
+  </gazebo>
 </robot>
