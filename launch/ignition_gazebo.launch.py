@@ -35,6 +35,7 @@ def generate_launch_description():
     namespace = LaunchConfiguration('namespace')
     world_name = LaunchConfiguration('world_name')
     world_file = LaunchConfiguration('world_file')
+    debug_condition = LaunchConfiguration('debug')
 
     exit_event = EmitEvent(
         event = Shutdown()
@@ -89,6 +90,13 @@ def generate_launch_description():
             'use_sim_gui',
             default_value = ['true'],
             description = 'Enable ignition gazebo gui (string)'
+        )
+    )
+    ld.add_action(
+        DeclareLaunchArgument(
+            'debug',
+            default_value = ['false'],
+            description = 'Enable debug output (boolean)'
         )
     )
 
@@ -152,6 +160,19 @@ def generate_launch_description():
                 ],
                 name = 'ign_gazebo',
                 output = output,
+                condition = UnlessCondition(debug_condition),
+                on_exit = [
+                    exit_event
+                ]
+            ),
+            ExecuteProcess(
+                shell = True,
+                cmd = [
+                    'ign', 'gazebo', '-s', '-r', '-v4', world_file
+                ],
+                name = 'ign_gazebo',
+                output = output,
+                condition = IfCondition(debug_condition),
                 on_exit = [
                     exit_event
                 ]
