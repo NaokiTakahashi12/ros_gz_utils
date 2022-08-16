@@ -99,11 +99,11 @@ def generate_launch_description():
                 EnvironmentVariable(
                     'IGN_GAZEBO_SYSTEM_PLUGIN_PATH',
                     default_value = ''
-                ),
+                ), ':',
                 EnvironmentVariable(
                     'LD_LIBRARY_PATH',
                     default_value = ''
-                ),
+                ), ':',
                 LaunchConfiguration('ignition_gazebo_system_plugin_path')
             ]
         )
@@ -115,11 +115,11 @@ def generate_launch_description():
                 EnvironmentVariable(
                     'IGN_GAZEBO_PHYSICS_ENGINE_PATH',
                     default_value = ''
-                ),
+                ), ':',
                 EnvironmentVariable(
                     'LD_LIBRARY_PATH',
                     default_value = ''
-                ),
+                ), ':',
                 LaunchConfiguration('ignition_gazebo_physics_engine_path')
             ]
         )
@@ -131,10 +131,10 @@ def generate_launch_description():
                 EnvironmentVariable(
                     'IGN_GAZEBO_RESOURCE_PATH',
                     default_value = ''
-                ),
+                ), ':',
                 os.path.join(
                     this_pkg_share_dir, 'worlds', 'ignition'
-                ),
+                ), ':',
                 LaunchConfiguration('world_path')
             ]
         )
