@@ -93,8 +93,7 @@ def generate_launch_description():
     ld.add_action(
         DeclareLaunchArgument(
             'spawn_node_name',
-            # TODO Anon
-            default_value = ['spawner_node'],
+            default_value = [AnonName('spawner_node')],
             description = 'Spawn robot node of ignition gazebo (string)'
         )
     )
@@ -142,7 +141,7 @@ def generate_launch_description():
             Node(
                 package = 'ros_ign_gazebo',
                 executable = 'create',
-                name = AnonName(LaunchConfiguration('spawn_node_name')),
+                name = LaunchConfiguration('spawn_node_name'),
                 output = output,
                 parameters = [
                     {'use_sim_time': use_sim_time},

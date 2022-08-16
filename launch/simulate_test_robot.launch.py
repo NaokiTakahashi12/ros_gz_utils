@@ -85,7 +85,13 @@ def generate_launch_description():
             description = 'Enable ignition gazebo gui (string)'
         )
     )
-    # TODO Add use_rviz
+    ld.add_action(
+        DeclareLaunchArgument(
+            'use_rviz',
+            default_value = ['true'],
+            description = 'Enable rviz for test_robot (boolean)'
+        )
+    )
 
     ld.add_action(
         IncludeLaunchDescription(
@@ -143,7 +149,8 @@ def generate_launch_description():
                 launch_arguments = {
                     # Launch arguments chain guard
                     'namespace': '',
-                    'use_sim_time': use_sim_time
+                    'use_sim_time': use_sim_time,
+                    'use_rviz': LaunchConfiguration('use_rviz')
                 }.items()
             ),
             IncludeLaunchDescription(
