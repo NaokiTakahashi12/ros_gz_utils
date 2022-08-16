@@ -33,17 +33,8 @@ def generate_launch_description():
     output = 'screen'
     this_pkg_share_dir = get_package_share_directory('ros_ign_utils')
 
-    namespace = LaunchConfiguration('namespace')
-
     ld = LaunchDescription()
 
-    ld.add_action(
-        DeclareLaunchArgument(
-            'namespace',
-            default_value = ['simulator'],
-            description = 'Namespace of ignition gazebo simulator (string)'
-        )
-    )
     ld.add_action(
         DeclareLaunchArgument(
             'rviz2_node_name',
@@ -64,26 +55,21 @@ def generate_launch_description():
     )
 
     ld.add_action(
-        GroupAction(actions = [
-            PushRosNamespace(
-                namespace = namespace
+        Node(
+            package = 'rviz2',
+            executable = 'rviz2',
+            name = AnonName(
+                LaunchConfiguration('rviz2_node_name')
             ),
-            Node(
-                package = 'rviz2',
-                executable = 'rviz2',
-                name = AnonName(
-                    LaunchConfiguration('rviz2_node_name')
-                ),
-                output = output,
-                parameters = [
-                    {'use_sim_time': True},
-                ],
-                arguments = [
-                    '-d',
-                    LaunchConfiguration('rviz2_config_file')
-                ]
-            )
-        ])
+            output = output,
+            parameters = [
+                {'use_sim_time': True},
+            ],
+            arguments = [
+                '-d',
+                LaunchConfiguration('rviz2_config_file')
+            ]
+        )
     )
 
     return ld
