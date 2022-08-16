@@ -19,7 +19,9 @@ from launch.conditions import (
 from launch.substitutions import (
     LaunchConfiguration,
     ThisLaunchFileDir,
-    EnvironmentVariable
+    EnvironmentVariable,
+    PathJoinSubstitution,
+    Command
 )
 from launch.events import Shutdown
 from launch.launch_description_sources import AnyLaunchDescriptionSource
@@ -32,9 +34,19 @@ def generate_launch_description():
     output = 'screen'
     this_pkg_share_dir = get_package_share_directory('ros_ign_utils')
 
-    namespace = LaunchConfiguration('namespace')
-    world_name = LaunchConfiguration('world_name')
-    world_file = LaunchConfiguration('world_file')
+    use_sim_time = LaunchConfiguration('use_sim_time')
+
+    urdf_file = PathJoinSubstitution([
+        LaunchConfiguration('robot_model_path'),
+        LaunchConfiguration('robot_model_file')
+    ])
+
+    robot_description = {
+        'robot_description': Command([
+            'xacro ',
+            urdf_file
+        ])
+    }
 
     exit_event = EmitEvent(
         event = Shutdown()
@@ -45,22 +57,8 @@ def generate_launch_description():
     ld.add_action(
         DeclareLaunchArgument(
             'namespace',
-            default_value = ['simulator'],
+            default_value = [''],
             description = 'Namespace of ignition gazebo simulator (string)'
-        )
-    )
-    ld.add_action(
-        DeclareLaunchArgument(
-            'world_name',
-            default_value = ['ground_plane'],
-            description = 'Simulation world name of ignition gazebo (string)'
-        )
-    )
-    ld.add_action(
-        DeclareLaunchArgument(
-            'world_file',
-            default_value = [world_name, '.sdf'],
-            description = 'Simulation world file of ignition gazebo (string)'
         )
     )
     ld.add_action(
@@ -72,139 +70,88 @@ def generate_launch_description():
     )
     ld.add_action(
         DeclareLaunchArgument(
-            'use_sim_gui',
+            'robot_model_path',
+            default_value = [
+                os.path.join(
+                    this_pkg_share_dir,
+                    'models',
+                    'urdf'
+                )
+            ],
+            description = 'Robot model file path (string)'
+        )
+    )
+    ld.add_action(
+        DeclareLaunchArgument(
+            'joint_state_publisher_config_file',
+            default_value = [
+                os.path.join(
+                    this_pkg_share_dir,
+                    'config',
+                    'joint_state_sources.yaml'
+                )
+            ],
+            description = 'Joint state publisher node parameter file (string)'
+        )
+    )
+    ld.add_action(
+        DeclareLaunchArgument(
+            'use_sim_time',
             default_value = ['true'],
-            description = 'Enable ignition gazebo gui (string)'
+            description = 'Enable simulation time (boolean)'
+        )
+    )
+    ld.add_action(
+        DeclareLaunchArgument(
+            'use_rviz',
+            default_value = ['true'],
+            description = 'Enable rviz for test_robot (boolean)'
         )
     )
 
     ld.add_action(
-        IncludeLaunchDescription(
-            AnyLaunchDescriptionSource([
-                ThisLaunchFileDir(),
-                '/ignition_gazebo.launch.py'
-            ]),
-            launch_arguments = {
-                'namespace': namespace,
-                'use_sim_time': 'true',
-                'world_name': world_name,
-                'use_sim_gui': LaunchConfiguration('use_sim_gui')
-            }.items()
-        )
-    )
-    ld.add_action(
-        IncludeLaunchDescription(
-            AnyLaunchDescriptionSource([
-                ThisLaunchFileDir(),
-                '/ignition_spawn.launch.py'
-            ]),
-            launch_arguments = {
-                'namespace': namespace,
-                'use_sim_time': 'true',
-                'world_name': world_name,
-                'robot_model_file': LaunchConfiguration('robot_model_file')
-            }.items()
-        )
-    )
-    ld.add_action(
         GroupAction(actions = [
             PushRosNamespace(
-                namespace = namespace
+                namespace = LaunchConfiguration('namespace')
+            ),
+            Node(
+                package = 'robot_state_publisher',
+                executable = 'robot_state_publisher',
+                name = 'robot_state_publisher',
+                output = output,
+                parameters = [
+                    robot_description,
+                    {'use_sim_time': use_sim_time}
+                ],
+                on_exit = exit_event
+            ),
+            # TODO https://github.com/ros/joint_state_publisher/issues/82
+            Node(
+                package = 'joint_state_publisher',
+                executable = 'joint_state_publisher',
+                name = 'joint_state_merger',
+                output = output,
+                parameters = [
+                    {'use_sim_time': use_sim_time},
+                    {'ignore_timestamp': False},
+                    {'publish_default_efforts': True},
+                    {'publish_default_velocities': True},
+                    {'publish_default_positions': True},
+                    LaunchConfiguration('joint_state_publisher_config_file')
+                ]
             ),
             IncludeLaunchDescription(
                 AnyLaunchDescriptionSource([
-                    ThisLaunchFileDir(), '/ignition_bridge.launch.py'
+                    ThisLaunchFileDir(),
+                    '/test_robot_visualization.launch.py'
                 ]),
                 launch_arguments = {
-                    'with_stf': 'false',
-                    'ign_topic': ['/world/', world_name, '/model/test_robot/joint_state'],
-                    'ros_topic': '~/joint_states',
-                    'convert_args': 'sensor_msgs/msg/JointState[ignition.msgs.Model',
-                    'bridge_node_name': 'test_bot_joint_state_bridge'
-                }.items()
-            ),
-            IncludeLaunchDescription(
-                AnyLaunchDescriptionSource([
-                    ThisLaunchFileDir(), '/ignition_bridge.launch.py'
-                ]),
-                launch_arguments = {
-                    'with_stf': 'true',
-                    'ign_frame_id': ['test_robot/upper_body_link/upper_imu'],
-                    'ros_frame_id': 'upper_imu_link',
-                    'ign_topic': [
-                        '/world/', world_name, '/model/test_robot/link/upper_body_link/sensor/upper_imu/imu'
-                    ],
-                    'ros_topic': 'upper_imu/data_raw',
-                    'convert_args': 'sensor_msgs/msg/Imu[ignition.msgs.IMU',
-                }.items()
-            ),
-            IncludeLaunchDescription(
-                AnyLaunchDescriptionSource([
-                    ThisLaunchFileDir(), '/ignition_bridge.launch.py'
-                ]),
-                launch_arguments = {
-                    'with_stf': 'true',
-                    'ign_frame_id': ['test_robot/base_link/lower_imu'],
-                    'ros_frame_id': 'lower_imu_link',
-                    'ign_topic': [
-                        '/world/', world_name, '/model/test_robot/link/base_link/sensor/lower_imu/imu'
-                    ],
-                    'ros_topic': 'lower_imu/data_raw',
-                    'convert_args': 'sensor_msgs/msg/Imu[ignition.msgs.IMU',
-                }.items()
-            ),
-            IncludeLaunchDescription(
-                AnyLaunchDescriptionSource([
-                    ThisLaunchFileDir(), '/ignition_bridge.launch.py'
-                ]),
-                launch_arguments = {
-                    'with_stf': 'true',
-                    'ign_frame_id': ['test_robot/upper_body_link/front_camera'],
-                    'ros_frame_id': 'front_camera_link',
-                    'ign_topic': [
-                        '/world/', world_name, '/model/test_robot/link/upper_body_link/sensor/front_camera/camera_info'
-                    ],
-                    'ros_topic': 'front_camera/camera_info',
-                    'convert_args': 'sensor_msgs/msg/CameraInfo[ignition.msgs.CameraInfo'
-                }.items()
-            ),
-            IncludeLaunchDescription(
-                AnyLaunchDescriptionSource([
-                    ThisLaunchFileDir(), '/ignition_image_bridge.launch.py'
-                ]),
-                launch_arguments = {
-                    'with_stf': 'false',
-                    'ign_topic': [
-                        '/world/', world_name, '/model/test_robot/link/upper_body_link/sensor/front_camera/image'
-                    ],
-                    'ros_topic': 'front_camera/image'
-                }.items()
-            ),
-            IncludeLaunchDescription(
-                AnyLaunchDescriptionSource([
-                    ThisLaunchFileDir(), '/ignition_image_bridge.launch.py'
-                ]),
-                launch_arguments = {
-                    'with_stf': 'false',
-                    'ign_topic': [
-                        '/world/', world_name, '/model/test_robot/link/upper_body_link/sensor/front_camera/depth_image'
-                    ],
-                    'ros_topic': 'front_camera/depth_image'
-                }.items()
-            ),
-            IncludeLaunchDescription(
-                AnyLaunchDescriptionSource([
-                    ThisLaunchFileDir(), '/ignition_bridge.launch.py'
-                ]),
-                launch_arguments = {
-                    'with_stf': 'false',
-                    'ign_topic': [
-                        '/world/', world_name, '/model/test_robot/link/upper_body_link/sensor/front_camera/points'
-                    ],
-                    'ros_topic': 'front_camera/points',
-                    'convert_args': 'sensor_msgs/msg/PointCloud2[ignition.msgs.PointCloudPacked'
-                }.items()
-            ),
+                    'use_sim_time': LaunchConfiguration('use_sim_time')
+                }.items(),
+                condition = IfCondition(
+                    LaunchConfiguration('use_rviz')
+                )
+            )
         ])
     )
 
