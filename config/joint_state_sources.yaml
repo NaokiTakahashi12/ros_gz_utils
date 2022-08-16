@@ -1,6 +1,5 @@
-simulator:
-  joint_state_merger:
-    ros__parameters:
-      rate: 10
-      source_list:
-        - test_bot_joint_state_bridge/joint_states
+joint_state_merger:
+  ros__parameters:
+    rate: 10
+    source_list:
+      - simulator/joint_states
