@@ -17,19 +17,20 @@ from launch_ros.actions import (
 )
 
 def generate_launch_description():
-    output = 'screen'
+    return LaunchDescription(
+        generate_declare_launch_arguments()
+        + generate_launch_nodes()
+    )
+
+def generate_declare_launch_arguments():
     this_pkg_share_dir = get_package_share_directory('ros_ign_utils')
 
-    ld = LaunchDescription()
-
-    ld.add_action(
+    return [
         DeclareLaunchArgument(
             'rviz2_node_name',
             default_value = ['rviz2'],
             description = 'Namespace of ignition gazebo simulator (string)'
-        )
-    )
-    ld.add_action(
+        ),
         DeclareLaunchArgument(
             'rviz2_config_file',
             default_value = [os.path.join(
@@ -39,9 +40,12 @@ def generate_launch_description():
             )],
             description = 'rviz2 config file path (string)'
         )
-    )
+    ]
 
-    ld.add_action(
+def generate_launch_nodes():
+    output = 'screen'
+
+    return [
         Node(
             package = 'rviz2',
             executable = 'rviz2',
@@ -57,9 +61,7 @@ def generate_launch_description():
                 LaunchConfiguration('rviz2_config_file')
             ]
         )
-    )
-
-    return ld
+    ]
 
 if __name__ == '__main__':
     launch_service = LaunchService()

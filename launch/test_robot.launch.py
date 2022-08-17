@@ -27,8 +27,61 @@ from launch_ros.actions import (
 )
 
 def generate_launch_description():
-    output = 'screen'
+    return LaunchDescription(
+        generate_declare_launch_arguments()
+        + generate_launch_nodes()
+    )
+
+def generate_declare_launch_arguments():
     this_pkg_share_dir = get_package_share_directory('ros_ign_utils')
+
+    return [
+        DeclareLaunchArgument(
+            'namespace',
+            default_value = [''],
+            description = 'Namespace of ignition gazebo simulator (string)'
+        ),
+        DeclareLaunchArgument(
+            'robot_model_file',
+            default_value = ['test_robot.urdf.xacro'],
+            description = 'Robot model file (string)'
+        ),
+        DeclareLaunchArgument(
+            'robot_model_path',
+            default_value = [
+                os.path.join(
+                    this_pkg_share_dir,
+                    'models',
+                    'urdf'
+                )
+            ],
+            description = 'Robot model file path (string)'
+        ),
+        DeclareLaunchArgument(
+            'joint_state_publisher_config_file',
+            default_value = [
+                os.path.join(
+                    this_pkg_share_dir,
+                    'config',
+                    'joint_state_sources.yaml'
+                )
+            ],
+            description = 'Joint state publisher node parameter file (string)'
+        ),
+        DeclareLaunchArgument(
+            'use_sim_time',
+            default_value = ['true'],
+            description = 'Enable simulation time (boolean)'
+        ),
+        DeclareLaunchArgument(
+            'use_rviz',
+            default_value = ['true'],
+            description = 'Enable rviz for test_robot (boolean)'
+        )
+    ]
+
+def generate_launch_nodes():
+    output = 'screen'
 
     use_sim_time = LaunchConfiguration('use_sim_time')
 
@@ -48,64 +101,7 @@ def generate_launch_description():
         event = Shutdown()
     )
 
-    ld = LaunchDescription()
-
-    ld.add_action(
-        DeclareLaunchArgument(
-            'namespace',
-            default_value = [''],
-            description = 'Namespace of ignition gazebo simulator (string)'
-        )
-    )
-    ld.add_action(
-        DeclareLaunchArgument(
-            'robot_model_file',
-            default_value = ['test_robot.urdf.xacro'],
-            description = 'Robot model file (string)'
-        )
-    )
-    ld.add_action(
-        DeclareLaunchArgument(
-            'robot_model_path',
-            default_value = [
-                os.path.join(
-                    this_pkg_share_dir,
-                    'models',
-                    'urdf'
-                )
-            ],
-            description = 'Robot model file path (string)'
-        )
-    )
-    ld.add_action(
-        DeclareLaunchArgument(
-            'joint_state_publisher_config_file',
-            default_value = [
-                os.path.join(
-                    this_pkg_share_dir,
-                    'config',
-                    'joint_state_sources.yaml'
-                )
-            ],
-            description = 'Joint state publisher node parameter file (string)'
-        )
-    )
-    ld.add_action(
-        DeclareLaunchArgument(
-            'use_sim_time',
-            default_value = ['true'],
-            description = 'Enable simulation time (boolean)'
-        )
-    )
-    ld.add_action(
-        DeclareLaunchArgument(
-            'use_rviz',
-            default_value = ['true'],
-            description = 'Enable rviz for test_robot (boolean)'
-        )
-    )
-
-    ld.add_action(
+    return [
         GroupAction(actions = [
             PushRosNamespace(
                 namespace = LaunchConfiguration('namespace')
@@ -149,9 +145,8 @@ def generate_launch_description():
                 )
             )
         ])
-    )
+    ]
 
-    return ld
 
 if __name__ == '__main__':
     launch_service = LaunchService()

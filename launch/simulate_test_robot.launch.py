@@ -15,6 +15,51 @@ from launch_ros.actions import (
 )
 
 def generate_launch_description():
+    return LaunchDescription(
+        generate_declare_launch_arguments()
+        + generate_launch_nodes()
+    )
+
+def generate_declare_launch_arguments():
+    return [
+        DeclareLaunchArgument(
+            'namespace',
+            default_value = ['simulator'],
+            description = 'Namespace of ignition gazebo simulator (string)'
+        ),
+        DeclareLaunchArgument(
+            'world_name',
+            default_value = ['ground_plane'],
+            description = 'Simulation world name of ignition gazebo (string)'
+        ),
+        DeclareLaunchArgument(
+            'world_file',
+            default_value = [LaunchConfiguration('world_name'), '.sdf'],
+            description = 'Simulation world file of ignition gazebo (string)'
+        ),
+        DeclareLaunchArgument(
+            'robot_model_file',
+            default_value = ['test_robot.urdf.xacro'],
+            description = 'Robot model file (string)'
+        ),
+        DeclareLaunchArgument(
+            'use_sim_time',
+            default_value = ['true'],
+            description = 'Enable simulation time (boolean)'
+        ),
+        DeclareLaunchArgument(
+            'use_sim_gui',
+            default_value = ['true'],
+            description = 'Enable ignition gazebo gui (string)'
+        ),
+        DeclareLaunchArgument(
+            'use_rviz',
+            default_value = ['true'],
+            description = 'Enable rviz for test_robot (boolean)'
+        )
+    ]
+
+def generate_launch_nodes():
     output = 'screen'
 
     namespace = LaunchConfiguration('namespace')
@@ -22,59 +67,7 @@ def generate_launch_description():
     world_file = LaunchConfiguration('world_file')
     use_sim_time = LaunchConfiguration('use_sim_time')
 
-    ld = LaunchDescription()
-
-    ld.add_action(
-        DeclareLaunchArgument(
-            'namespace',
-            default_value = ['simulator'],
-            description = 'Namespace of ignition gazebo simulator (string)'
-        )
-    )
-    ld.add_action(
-        DeclareLaunchArgument(
-            'world_name',
-            default_value = ['ground_plane'],
-            description = 'Simulation world name of ignition gazebo (string)'
-        )
-    )
-    ld.add_action(
-        DeclareLaunchArgument(
-            'world_file',
-            default_value = [world_name, '.sdf'],
-            description = 'Simulation world file of ignition gazebo (string)'
-        )
-    )
-    ld.add_action(
-        DeclareLaunchArgument(
-            'robot_model_file',
-            default_value = ['test_robot.urdf.xacro'],
-            description = 'Robot model file (string)'
-        )
-    )
-    ld.add_action(
-        DeclareLaunchArgument(
-            'use_sim_time',
-            default_value = ['true'],
-            description = 'Enable simulation time (boolean)'
-        )
-    )
-    ld.add_action(
-        DeclareLaunchArgument(
-            'use_sim_gui',
-            default_value = ['true'],
-            description = 'Enable ignition gazebo gui (string)'
-        )
-    )
-    ld.add_action(
-        DeclareLaunchArgument(
-            'use_rviz',
-            default_value = ['true'],
-            description = 'Enable rviz for test_robot (boolean)'
-        )
-    )
-
-    ld.add_action(
+    return [
         IncludeLaunchDescription(
             AnyLaunchDescriptionSource([
                 ThisLaunchFileDir(),
@@ -86,9 +79,7 @@ def generate_launch_description():
                 'world_name': world_name,
                 'use_sim_gui': LaunchConfiguration('use_sim_gui')
             }.items()
-        )
-    )
-    ld.add_action(
+        ),
         IncludeLaunchDescription(
             AnyLaunchDescriptionSource([
                 ThisLaunchFileDir(),
@@ -100,9 +91,7 @@ def generate_launch_description():
                 'world_name': world_name,
                 'robot_model_file': LaunchConfiguration('robot_model_file')
             }.items()
-        )
-    )
-    ld.add_action(
+        ),
         GroupAction(actions = [
             PushRosNamespace(
                 namespace = namespace
@@ -119,9 +108,7 @@ def generate_launch_description():
                     'bridge_node_name': 'test_robot_joint_state_bridge'
                 }.items()
             )
-        ])
-    )
-    ld.add_action(
+        ]),
         GroupAction(actions = [
             IncludeLaunchDescription(
                 AnyLaunchDescriptionSource([
@@ -215,11 +202,9 @@ def generate_launch_description():
                     'ros_topic': 'front_camera/points',
                     'convert_args': 'sensor_msgs/msg/PointCloud2[ignition.msgs.PointCloudPacked'
                 }.items()
-            ),
+            )
         ])
-    )
-
-    return ld
+    ]
 
 if __name__ == '__main__':
     launch_service = LaunchService()
