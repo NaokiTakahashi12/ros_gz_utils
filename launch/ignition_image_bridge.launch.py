@@ -1,23 +1,15 @@
 
-import os
-
-from ament_index_python.packages import get_package_share_directory
-
 from launch import LaunchDescription
 from launch.actions import (
     DeclareLaunchArgument,
-    SetEnvironmentVariable,
-    ExecuteProcess,
     GroupAction,
     EmitEvent
 )
 from launch.conditions import (
-    IfCondition,
-    UnlessCondition
+    IfCondition
 )
 from launch.substitutions import (
     LaunchConfiguration,
-    PythonExpression,
     AnonName
 )
 from launch.events import Shutdown

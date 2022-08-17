@@ -1,45 +1,26 @@
 
-import os
-
-from ament_index_python.packages import get_package_share_directory
-
 from launch import LaunchDescription
 from launch.actions import (
     DeclareLaunchArgument,
     IncludeLaunchDescription,
-    SetEnvironmentVariable,
-    ExecuteProcess,
-    GroupAction,
-    EmitEvent
-)
-from launch.conditions import (
-    IfCondition,
-    UnlessCondition
+    GroupAction
 )
 from launch.substitutions import (
     LaunchConfiguration,
-    ThisLaunchFileDir,
-    EnvironmentVariable
+    ThisLaunchFileDir
 )
-from launch.events import Shutdown
 from launch.launch_description_sources import AnyLaunchDescriptionSource
 from launch_ros.actions import (
-    Node,
     PushRosNamespace
 )
 
 def generate_launch_description():
     output = 'screen'
-    this_pkg_share_dir = get_package_share_directory('ros_ign_utils')
 
     namespace = LaunchConfiguration('namespace')
     world_name = LaunchConfiguration('world_name')
     world_file = LaunchConfiguration('world_file')
     use_sim_time = LaunchConfiguration('use_sim_time')
-
-    exit_event = EmitEvent(
-        event = Shutdown()
-    )
 
     ld = LaunchDescription()
 

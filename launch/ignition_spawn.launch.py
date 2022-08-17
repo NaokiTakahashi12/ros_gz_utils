@@ -6,15 +6,7 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import (
     DeclareLaunchArgument,
-    IncludeLaunchDescription,
-    SetEnvironmentVariable,
-    ExecuteProcess,
-    GroupAction,
-    EmitEvent
-)
-from launch.conditions import (
-    IfCondition,
-    UnlessCondition
+    SetEnvironmentVariable
 )
 from launch.substitutions import (
     LaunchConfiguration,
@@ -23,10 +15,8 @@ from launch.substitutions import (
     Command,
     AnonName
 )
-from launch.events import Shutdown
 from launch_ros.actions import (
-    Node,
-    PushRosNamespace
+    Node
 )
 
 def generate_launch_description():
@@ -42,10 +32,6 @@ def generate_launch_description():
     urdf_file = PathJoinSubstitution([
         robot_model_path, robot_model_file
     ])
-
-    exit_event = EmitEvent(
-        event = Shutdown()
-    )
 
     ld = LaunchDescription()
 
@@ -134,30 +120,26 @@ def generate_launch_description():
     )
 
     ld.add_action(
-        GroupAction(actions = [
-            PushRosNamespace(
-                namespace = namespace
-            ),
-            Node(
-                package = 'ros_ign_gazebo',
-                executable = 'create',
-                name = LaunchConfiguration('spawn_node_name'),
-                output = output,
-                parameters = [
-                    {'use_sim_time': use_sim_time},
-                ],
-                arguments = [
-                    '-world', world_name,
-                    '-string', Command(['xacro ', urdf_file]),
-                    '-x', '0',
-                    '-y', '0',
-                    '-z', '0.5',
-                    '-R', '0',
-                    '-P', '0',
-                    '-Y', '0'
-                ]
-            )
-        ])
+        Node(
+            package = 'ros_ign_gazebo',
+            executable = 'create',
+            name = LaunchConfiguration('spawn_node_name'),
+            namespace = namespace,
+            output = output,
+            parameters = [
+                {'use_sim_time': use_sim_time},
+            ],
+            arguments = [
+                '-world', world_name,
+                '-string', Command(['xacro ', urdf_file]),
+                '-x', '0',
+                '-y', '0',
+                '-z', '0.5',
+                '-R', '0',
+                '-P', '0',
+                '-Y', '0'
+            ]
+        )
     )
 
     return ld

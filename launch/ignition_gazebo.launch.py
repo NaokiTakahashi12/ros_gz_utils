@@ -24,7 +24,6 @@ from launch.substitutions import (
 from launch.events import Shutdown
 from launch.launch_description_sources import AnyLaunchDescriptionSource
 from launch_ros.actions import (
-    Node,
     PushRosNamespace
 )
 
