@@ -1,3 +1,4 @@
+#!/usr/bin/env -S python3
 
 import os
 
@@ -6,15 +7,7 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import (
     DeclareLaunchArgument,
-    IncludeLaunchDescription,
-    SetEnvironmentVariable,
-    ExecuteProcess,
-    GroupAction,
-    EmitEvent
-)
-from launch.conditions import (
-    IfCondition,
-    UnlessCondition
+    SetEnvironmentVariable
 )
 from launch.substitutions import (
     LaunchConfiguration,
@@ -23,15 +16,59 @@ from launch.substitutions import (
     Command,
     AnonName
 )
-from launch.events import Shutdown
 from launch_ros.actions import (
-    Node,
-    PushRosNamespace
+    Node
 )
 
 def generate_launch_description():
+    return LaunchDescription(
+        generate_declare_launch_arguments()
+        + generate_local_environment_variables()
+        + generate_launch_nodes()
+    )
+
+def generate_declare_launch_arguments():
+    return [
+        DeclareLaunchArgument(
+            'namespace',
+            default_value = ['simulator'],
+            description = 'Namespace of ignition gazebo simulator (string)'
+        ),
+        DeclareLaunchArgument(
+            'use_sim_time',
+            default_value = ['true'],
+            description = 'Subscribe /clock topic (boolean)'
+        ),
+        DeclareLaunchArgument(
+            'robot_model_file',
+            default_value = ['test_robot.urdf.xacro'],
+            description = 'Robot model file (string)'
+        ),
+        DeclareLaunchArgument(
+            'robot_model_path',
+            default_value = [
+                os.path.join(
+                    get_package_share_directory('ros_ign_utils'),
+                    'models',
+                    'urdf'
+                )
+            ],
+            description = 'Robot model file path (string)'
+        ),
+        DeclareLaunchArgument(
+            'world_name',
+            default_value = ['default'],
+            description = 'Simulation world name of ignition gazebo (string)'
+        ),
+        DeclareLaunchArgument(
+            'spawn_node_name',
+            default_value = [AnonName('spawner_node')],
+            description = 'Spawn robot node of ignition gazebo (string)'
+        )
+    ]
+
+def generate_launch_nodes():
     output = 'screen'
-    this_pkg_share_dir = get_package_share_directory('ros_ign_utils')
 
     namespace = LaunchConfiguration('namespace')
     use_sim_time = LaunchConfiguration('use_sim_time')
@@ -43,62 +80,33 @@ def generate_launch_description():
         robot_model_path, robot_model_file
     ])
 
-    exit_event = EmitEvent(
-        event = Shutdown()
-    )
-
-    ld = LaunchDescription()
-
-    ld.add_action(
-        DeclareLaunchArgument(
-            'namespace',
-            default_value = ['simulator'],
-            description = 'Namespace of ignition gazebo simulator (string)'
-        )
-    )
-    ld.add_action(
-        DeclareLaunchArgument(
-            'use_sim_time',
-            default_value = ['true'],
-            description = 'Subscribe /clock topic (boolean)'
-        )
-    )
-    ld.add_action(
-        DeclareLaunchArgument(
-            'robot_model_file',
-            default_value = ['test_robot.urdf.xacro'],
-            description = 'Robot model file (string)'
-        )
-    )
-    ld.add_action(
-        DeclareLaunchArgument(
-            'robot_model_path',
-            default_value = [
-                os.path.join(
-                    this_pkg_share_dir,
-                    'models',
-                    'urdf'
-                )
+    return [
+        Node(
+            package = 'ros_ign_gazebo',
+            executable = 'create',
+            name = LaunchConfiguration('spawn_node_name'),
+            namespace = namespace,
+            output = output,
+            parameters = [
+                {'use_sim_time': use_sim_time},
             ],
-            description = 'Robot model file path (string)'
+            arguments = [
+                '-world', world_name,
+                '-string', Command(['xacro ', urdf_file]),
+                '-x', '0',
+                '-y', '0',
+                '-z', '0.5',
+                '-R', '0',
+                '-P', '0',
+                '-Y', '0'
+            ]
         )
-    )
-    ld.add_action(
-        DeclareLaunchArgument(
-            'world_name',
-            default_value = ['default'],
-            description = 'Simulation world name of ignition gazebo (string)'
-        )
-    )
-    ld.add_action(
-        DeclareLaunchArgument(
-            'spawn_node_name',
-            default_value = [AnonName('spawner_node')],
-            description = 'Spawn robot node of ignition gazebo (string)'
-        )
-    )
+    ]
 
-    ld.add_action(
+def generate_local_environment_variables():
+    this_pkg_share_dir = get_package_share_directory('ros_ign_utils')
+
+    return [
         SetEnvironmentVariable(
             name = 'SDF_PATH',
             value = [
@@ -113,9 +121,7 @@ def generate_launch_description():
                 ),
                 LaunchConfiguration('robot_model_path')
             ]
-        )
-    )
-    ld.add_action(
+        ),
         SetEnvironmentVariable(
             name = 'IGN_FILE_PATH',
             value = [
@@ -131,36 +137,7 @@ def generate_launch_description():
                 LaunchConfiguration('robot_model_path')
             ]
         )
-    )
-
-    ld.add_action(
-        GroupAction(actions = [
-            PushRosNamespace(
-                namespace = namespace
-            ),
-            Node(
-                package = 'ros_ign_gazebo',
-                executable = 'create',
-                name = LaunchConfiguration('spawn_node_name'),
-                output = output,
-                parameters = [
-                    {'use_sim_time': use_sim_time},
-                ],
-                arguments = [
-                    '-world', world_name,
-                    '-string', Command(['xacro ', urdf_file]),
-                    '-x', '0',
-                    '-y', '0',
-                    '-z', '0.5',
-                    '-R', '0',
-                    '-P', '0',
-                    '-Y', '0'
-                ]
-            )
-        ])
-    )
-
-    return ld
+    ]
 
 if __name__ == '__main__':
     launch_service = LaunchService()

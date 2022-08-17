@@ -1,3 +1,4 @@
+#!/usr/bin/env -S python3
 
 import os
 
@@ -24,83 +25,64 @@ from launch.substitutions import (
 from launch.events import Shutdown
 from launch.launch_description_sources import AnyLaunchDescriptionSource
 from launch_ros.actions import (
-    Node,
     PushRosNamespace
 )
 
 def generate_launch_description():
-    output = 'screen'
-    this_pkg_share_dir = get_package_share_directory('ros_ign_utils')
-
-    namespace = LaunchConfiguration('namespace')
-    world_name = LaunchConfiguration('world_name')
-    world_file = LaunchConfiguration('world_file')
-    debug_condition = LaunchConfiguration('debug')
-
-    exit_event = EmitEvent(
-        event = Shutdown()
+    return LaunchDescription(
+        generate_declare_launch_arguments()
+        + generate_local_environment_variables()
+        + generate_launch_nodes()
     )
 
-    ld = LaunchDescription()
-
-    ld.add_action(
+def generate_declare_launch_arguments():
+    return [
         DeclareLaunchArgument(
             'namespace',
             default_value = ['simulator'],
             description = 'Namespace of ignition gazebo simulator (string)'
-        )
-    )
-    ld.add_action(
+        ),
         DeclareLaunchArgument(
             'world_name',
             default_value = ['ground_plane'],
             description = 'Simulation world name of ignition gazebo (string)'
-        )
-    )
-    ld.add_action(
+        ),
         DeclareLaunchArgument(
             'world_file',
-            default_value = [world_name, '.sdf'],
+            default_value = [LaunchConfiguration('world_name'), '.sdf'],
             description = 'Simulation world file of ignition gazebo (string)'
-        )
-    )
-    ld.add_action(
+        ),
         DeclareLaunchArgument(
             'world_path',
             default_value = [''],
             description = 'Simulation world file path of ignition gazebo (string)'
-        )
-    )
-    ld.add_action(
+        ),
         DeclareLaunchArgument(
             'ignition_gazebo_system_plugin_path',
             default_value = [''],
             description = 'Ignition gazebo system plugin path (string)'
-        )
-    )
-    ld.add_action(
+        ),
         DeclareLaunchArgument(
             'ignition_gazebo_physics_engine_path',
             default_value = [''],
             description = 'Ignition gazebo physics engine path (string)'
-        )
-    )
-    ld.add_action(
+        ),
         DeclareLaunchArgument(
             'use_sim_gui',
             default_value = ['true'],
             description = 'Enable ignition gazebo gui (string)'
-        )
-    )
-    ld.add_action(
+        ),
         DeclareLaunchArgument(
             'debug',
             default_value = ['false'],
             description = 'Enable debug output (boolean)'
         )
-    )
+    ]
 
-    ld.add_action(
+def generate_local_environment_variables():
+    this_pkg_share_dir = get_package_share_directory('ros_ign_utils')
+
+    return [
         SetEnvironmentVariable(
             name = 'IGN_GAZEBO_SYSTEM_PLUGIN_PATH',
             value = [
@@ -114,9 +96,7 @@ def generate_launch_description():
                 ), ':',
                 LaunchConfiguration('ignition_gazebo_system_plugin_path')
             ]
-        )
-    )
-    ld.add_action(
+        ),
         SetEnvironmentVariable(
             name = 'IGN_GAZEBO_PHYSICS_ENGINE_PATH',
             value = [
@@ -130,9 +110,7 @@ def generate_launch_description():
                 ), ':',
                 LaunchConfiguration('ignition_gazebo_physics_engine_path')
             ]
-        )
-    )
-    ld.add_action(
+        ),
         SetEnvironmentVariable(
             name = 'IGN_GAZEBO_RESOURCE_PATH',
             value = [
@@ -146,9 +124,21 @@ def generate_launch_description():
                 LaunchConfiguration('world_path')
             ]
         )
+    ]
+
+def generate_launch_nodes():
+    output = 'screen'
+
+    namespace = LaunchConfiguration('namespace')
+    world_name = LaunchConfiguration('world_name')
+    world_file = LaunchConfiguration('world_file')
+    debug_condition = LaunchConfiguration('debug')
+
+    exit_event = EmitEvent(
+        event = Shutdown()
     )
 
-    ld.add_action(
+    return [
         GroupAction(actions = [
             PushRosNamespace(
                 namespace = namespace
@@ -221,9 +211,7 @@ def generate_launch_description():
                 }.items()
             )
         ])
-    )
-
-    return ld
+    ]
 
 if __name__ == '__main__':
     launch_service = LaunchService()

@@ -1,29 +1,69 @@
-
-import os
-
-from ament_index_python.packages import get_package_share_directory
+#!/usr/bin/env -S python3
 
 from launch import LaunchDescription
 from launch.actions import (
     DeclareLaunchArgument,
-    SetEnvironmentVariable,
-    ExecuteProcess,
     GroupAction,
     EmitEvent
 )
 from launch.conditions import (
-    IfCondition,
-    UnlessCondition
+    IfCondition
 )
 from launch.substitutions import (
     LaunchConfiguration,
-    PythonExpression,
     AnonName
 )
 from launch.events import Shutdown
 from launch_ros.actions import Node
 
 def generate_launch_description():
+    return LaunchDescription(
+        generate_declare_launch_arguments()
+        + generate_launch_nodes()
+    )
+
+def generate_declare_launch_arguments():
+    return [
+        DeclareLaunchArgument(
+            'with_stf',
+            default_value = ['true'],
+            description = 'Launch with static transform publisher (boolean)'
+        ),
+        DeclareLaunchArgument(
+            'ign_topic',
+            description = 'Ignition gazebo topic name (string)'
+        ),
+        DeclareLaunchArgument(
+            'ros_topic',
+            description = 'ROS2 topic name (string)'
+        ),
+        DeclareLaunchArgument(
+            'ign_frame_id',
+            description = 'Ignition gazebo transform frame id (string)',
+            condition = IfCondition(
+                LaunchConfiguration('with_stf')
+            ),
+        ),
+        DeclareLaunchArgument(
+            'ros_frame_id',
+            description = 'ROS2 transform frame id (string)',
+            condition = IfCondition(
+                LaunchConfiguration('with_stf')
+            ),
+        ),
+        DeclareLaunchArgument(
+            'bridge_node_name',
+            default_value = AnonName('parameter_bridge'),
+            description = 'Bridge node name (string)'
+        ),
+        DeclareLaunchArgument(
+            'stf_node_name',
+            default_value = AnonName('stf'),
+            description = 'Static transform publisher node name (string)'
+        )
+    ]
+
+def generate_launch_nodes():
     output = 'screen'
 
     ign_topic = LaunchConfiguration('ign_topic')
@@ -35,61 +75,7 @@ def generate_launch_description():
         event = Shutdown()
     )
 
-    ld = LaunchDescription()
-
-    ld.add_action(
-        DeclareLaunchArgument(
-            'with_stf',
-            default_value = ['true'],
-            description = 'Launch with static transform publisher (boolean)'
-        )
-    )
-    ld.add_action(
-        DeclareLaunchArgument(
-            'ign_topic',
-            description = 'Ignition gazebo topic name (string)'
-        )
-    )
-    ld.add_action(
-        DeclareLaunchArgument(
-            'ros_topic',
-            description = 'ROS2 topic name (string)'
-        )
-    )
-    ld.add_action(
-        DeclareLaunchArgument(
-            'ign_frame_id',
-            description = 'Ignition gazebo transform frame id (string)',
-            condition = IfCondition(
-                LaunchConfiguration('with_stf')
-            ),
-        )
-    )
-    ld.add_action(
-        DeclareLaunchArgument(
-            'ros_frame_id',
-            description = 'ROS2 transform frame id (string)',
-            condition = IfCondition(
-                LaunchConfiguration('with_stf')
-            ),
-        )
-    )
-    ld.add_action(
-        DeclareLaunchArgument(
-            'bridge_node_name',
-            default_value = AnonName('parameter_bridge'),
-            description = 'Bridge node name (string)'
-        )
-    )
-    ld.add_action(
-        DeclareLaunchArgument(
-            'stf_node_name',
-            default_value = AnonName('stf'),
-            description = 'Static transform publisher node name (string)'
-        )
-    )
-
-    ld.add_action(
+    return [
         GroupAction([
             Node(
                 package = 'ros_ign_image',
@@ -130,9 +116,8 @@ def generate_launch_description():
                 )
             )
         ])
-    )
+    ]
 
-    return ld
 
 if __name__ == '__main__':
     launch_service = LaunchService()
