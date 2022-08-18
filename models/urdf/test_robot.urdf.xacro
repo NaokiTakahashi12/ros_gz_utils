@@ -66,16 +66,20 @@
   <xacro:include filename="$(find ros_ign_utils)/models/urdf/wheel.xacro"/>
   <xacro:wheel prefix="left">
     <parent link="lower_body_link"/>
-    <origin xyz="0.1 0.225 -0.03" rpy="1.52 0 0"/>
+    <origin xyz="0 0.225 -0.03" rpy="1.52 0 0"/>
   </xacro:wheel>
   <xacro:wheel prefix="right">
     <parent link="lower_body_link"/>
-    <origin xyz="0.1 -0.225 -0.03" rpy="1.52 0 0"/>
+    <origin xyz="0 -0.225 -0.03" rpy="1.52 0 0"/>
   </xacro:wheel>
   <xacro:include filename="$(find ros_ign_utils)/models/urdf/swivel_caster.xacro"/>
   <xacro:swivel_caster prefix="rear">
     <parent link="lower_body_link"/>
-    <origin xyz="-0.2 0 0" rpy="0 0 0"/>
+    <origin xyz="-0.225 0 0" rpy="0 0 0"/>
+  </xacro:swivel_caster>
+  <xacro:swivel_caster prefix="front">
+    <parent link="lower_body_link"/>
+    <origin xyz="0.225 0 0" rpy="0 0 0"/>
   </xacro:swivel_caster>
   <xacro:include filename="$(find ros_ign_utils)/models/urdf/camera_link_macro.xacro"/>
   <xacro:camera_link_macro prefix="front">
