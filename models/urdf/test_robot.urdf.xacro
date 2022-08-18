@@ -63,20 +63,29 @@
     <limit effort="0.3" velocity="0.5" lower="-1.52" upper="1.52"/>
     <dynamics damping="0.01" friction="0.001"/>
   </joint>
-  <xacro:include filename="$(find ros_ign_utils)/models/urdf/wheel.xacro"/>
-  <xacro:wheel prefix="left">
+  <xacro:include filename="$(find ros_ign_utils)/models/urdf/wheel_link.xacro"/>
+  <xacro:wheel_link prefix="left">
     <parent link="lower_body_link"/>
-    <origin xyz="0.1 0.225 -0.03" rpy="1.52 0 0"/>
-  </xacro:wheel>
-  <xacro:wheel prefix="right">
+    <origin xyz="0 0.225 -0.03" rpy="1.52 0 0"/>
+  </xacro:wheel_link>
+  <xacro:wheel_link prefix="right">
     <parent link="lower_body_link"/>
-    <origin xyz="0.1 -0.225 -0.03" rpy="1.52 0 0"/>
-  </xacro:wheel>
-  <xacro:include filename="$(find ros_ign_utils)/models/urdf/swivel_caster.xacro"/>
-  <xacro:swivel_caster prefix="rear">
+    <origin xyz="0 -0.225 -0.03" rpy="1.52 0 0"/>
+  </xacro:wheel_link>
+  <xacro:include filename="$(find ros_ign_utils)/models/urdf/swivel_caster_link.xacro"/>
+  <xacro:swivel_caster_link prefix="rear">
     <parent link="lower_body_link"/>
-    <origin xyz="-0.2 0 0" rpy="0 0 0"/>
-  </xacro:swivel_caster>
+    <origin xyz="-0.225 0 0" rpy="0 0 0"/>
+  </xacro:swivel_caster_link>
+  <xacro:swivel_caster_link prefix="front">
+    <parent link="lower_body_link"/>
+    <origin xyz="0.225 0 0" rpy="0 0 0"/>
+  </xacro:swivel_caster_link>
+  <xacro:include filename="$(find ros_ign_utils)/models/urdf/arm_link.xacro"/>
+  <xacro:arm_link prefix="center">
+    <parent link="upper_body_link"/>
+    <origin xyz="0 0 0.1" rpy="0 0 0"/>
+  </xacro:arm_link>
   <xacro:include filename="$(find ros_ign_utils)/models/urdf/camera_link_macro.xacro"/>
   <xacro:camera_link_macro prefix="front">
     <parent link="upper_body_link"/>
