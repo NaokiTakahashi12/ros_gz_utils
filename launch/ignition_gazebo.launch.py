@@ -44,7 +44,7 @@ def generate_declare_launch_arguments():
         ),
         DeclareLaunchArgument(
             'world_name',
-            default_value = ['ground_plane'],
+            default_value = ['checker_ground_plane'],
             description = 'Simulation world name of ignition gazebo (string)'
         ),
         DeclareLaunchArgument(
