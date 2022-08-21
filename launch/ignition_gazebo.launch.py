@@ -58,6 +58,11 @@ def generate_declare_launch_arguments():
             description = 'Simulation world file path of ignition gazebo (string)'
         ),
         DeclareLaunchArgument(
+            'resource_package_name',
+            default_value = [''],
+            description = 'Simulation world recource file path of ignition server (string)'
+        ),
+        DeclareLaunchArgument(
             'ignition_gazebo_system_plugin_path',
             default_value = [''],
             description = 'Ignition gazebo system plugin path (string)'
@@ -121,6 +126,10 @@ def generate_local_environment_variables():
                 os.path.join(
                     this_pkg_share_dir, 'worlds', 'ignition'
                 ), ':',
+                os.path.join(
+                    this_pkg_share_dir, '..'
+                ), ':',
+                LaunchConfiguration('resource_package_name'), '/..:',
                 LaunchConfiguration('world_path')
             ]
         )
