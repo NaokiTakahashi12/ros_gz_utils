@@ -113,7 +113,7 @@ def generate_local_environment_variables():
                 EnvironmentVariable(
                     'SDF_PATH',
                     default_value = ''
-                ),
+                ), ':',
                 os.path.join(
                     this_pkg_share_dir,
                     'models',
@@ -128,7 +128,7 @@ def generate_local_environment_variables():
                 EnvironmentVariable(
                     'IGN_FILE_PATH',
                     default_value = ''
-                ),
+                ), ':',
                 os.path.join(
                     this_pkg_share_dir,
                     'models',
