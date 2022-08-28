@@ -1,0 +1,22 @@
+multiple_ignition_bridge:
+  upper_imu_bridge:
+    type: bridge
+    with_stf: !!str true
+    ign_frame_id: ${robot}/upper_imu_link/upper_imu
+    ros_frame_id: upper_imu_link
+    ign_topic: /world/${world}/model/${robot}/link/base_link/sensor/upper_imu/imu
+    ros_topic: /upper_imu/data_raw
+    convert_args: &imu_convert sensor_msgs/msg/Imu[ignition.msgs.IMU
+  lower_imu_bridge:
+    type: bridge
+    with_stf: !!str true
+    ign_frame_id: ${robot}/lower_imu_link/upper_imu
+    ros_frame_id: lower_imu_link
+    ign_topic: /world/${world}/model/${robot}/link/base_link/sensor/lower_imu/imu
+    ros_topic: /lower_imu/data_raw
+    convert_args: sensor_msgs/msg/Imu[ignition.msgs.IMU
+  #front_camera_bridge:
+  #  type: image_bridge
+  #joint_states_bridge:
+  #  type: bridge
+  #  namespace: &simulator_namespace /simulator
