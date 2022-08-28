@@ -62,7 +62,7 @@ def generate_declare_launch_arguments():
         ),
         DeclareLaunchArgument(
             'stf_node_name',
-            default_value = 'stf',
+            default_value = AnonName('stf'),
             description = 'Static transform publisher node name (string)'
         )
     ]
@@ -104,10 +104,7 @@ def generate_launch_nodes():
             Node(
                 package = 'tf2_ros',
                 executable = 'static_transform_publisher',
-                # TODO
-                name = AnonName(
-                    LaunchConfiguration('stf_node_name')
-                ),
+                name = LaunchConfiguration('stf_node_name'),
                 output = output,
                 parameters = [
                     {'use_sim_time': True}
