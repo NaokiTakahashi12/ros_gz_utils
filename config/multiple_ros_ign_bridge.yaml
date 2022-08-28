@@ -10,7 +10,7 @@ multiple_ignition_bridge:
   lower_imu_bridge:
     type: bridge
     with_stf: !!str true
-    ign_frame_id: ${robot}/lower_imu_link/upper_imu
+    ign_frame_id: ${robot}/base_link/lower_imu
     ros_frame_id: lower_imu_link
     ign_topic: /world/${world}/model/${robot}/link/base_link/sensor/lower_imu/imu
     ros_topic: lower_imu/data_raw
