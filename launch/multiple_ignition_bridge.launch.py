@@ -18,26 +18,114 @@ from launch.actions import (
     DeclareLaunchArgument,
     IncludeLaunchDescription,
     OpaqueFunction,
-    GroupAction,
-    EmitEvent,
-    LogInfo
-)
-from launch.conditions import (
-    IfCondition
+    GroupAction
 )
 from launch.substitutions import (
     LaunchConfiguration,
-    TextSubstitution,
     ThisLaunchFileDir,
     AnonName
 )
 from launch.launch_description_sources import AnyLaunchDescriptionSource
-from launch.events import Shutdown
 from launch_ros.actions import (
     Node,
     PushRosNamespace
 )
 
+
+def generate_launch_description():
+    launch_description = LaunchDescription(
+        generate_declare_launch_arguments()
+    )
+
+    def load_launch_arguments(
+        context: LaunchContext,
+        config_file,
+        robot_name,
+        world_name):
+
+        config_file_str = context.perform_substitution(config_file)
+        robot_name_str = context.perform_substitution(robot_name)
+        world_name_str = context.perform_substitution(world_name)
+
+        config_parser = MultipleIgnBridgeConfigParser()
+
+        config_parser.set_robot_name(robot_name_str)
+        config_parser.set_world_name(world_name_str)
+        config_parser.open(config_file_str)
+
+        bridge_launch = {
+            'bridge':
+                [ThisLaunchFileDir(), '/ignition_bridge.launch.py'],
+            'image_bridge':
+                [ThisLaunchFileDir(), '/ignition_image_bridge.launch.py']
+        }
+
+        for bridge_node_name in config_parser.bridge_configs:
+            launch_file = bridge_launch[
+                config_parser.get_bridge_type(
+                    bridge_node_name
+                )
+            ]
+
+            launch_description.add_action(GroupAction(actions = [
+                    PushRosNamespace(
+                        namespace = config_parser.get_bridge_namespace(
+                            bridge_node_name
+                        )
+                    ),
+                    IncludeLaunchDescription(
+                        AnyLaunchDescriptionSource(
+                            launch_file
+                        ),
+                        launch_arguments = config_parser.get_launch_arguments(
+                            bridge_node_name
+                        )
+                    )
+                ])
+            )
+
+    launch_description.add_action(
+        GroupAction(actions = [
+            OpaqueFunction(
+                function = load_launch_arguments,
+                args = [
+                    LaunchConfiguration('multiple_bridge_config'),
+                    LaunchConfiguration('robot_name'),
+                    LaunchConfiguration('world_name')
+                ]
+            )
+        ])
+    )
+
+    return launch_description
+
+
+def generate_declare_launch_arguments():
+    this_pkg_share_dir = get_package_share_directory('ros_ign_utils')
+
+    return [
+        DeclareLaunchArgument(
+            'multiple_bridge_config',
+            default_value = [
+                os.path.join(
+                    this_pkg_share_dir,
+                    'config',
+                    'multiple_ros_ign_bridge.yaml'
+                )
+            ],
+            description = 'Multiple ros_ign bridge configulation file path (string)'
+        ),
+        DeclareLaunchArgument(
+            'world_name',
+            default_value = ['checker_ground_plane'],
+            description = 'Simulation world name of ignition gazebo (string)'
+        ),
+        DeclareLaunchArgument(
+            'robot_name',
+            default_value = ['test_robot'],
+            description = 'Simulate robot model name (string)'
+        ),
+    ]
 
 class MultipleIgnBridgeConfigParser(object):
     def __init__(self):
@@ -112,24 +200,22 @@ class MultipleIgnBridgeConfigParser(object):
         config = self.bridge_configs[node_name]
 
         # Default launch arguments
-        with_stf = ''
-        ign_frame_id = ''
-        ros_frame_id = ''
-        ign_topic = ''
-        ros_topic = ''
-        convert_args = ''
+        with_stf = self._get_param_from_config(config, 'with_stf', 'false')
+        ign_frame_id = self._get_param_from_config(config, 'ign_frame_id')
+        ros_frame_id = self._get_param_from_config(config, 'ros_frame_id')
+        ign_topic = self._get_param_from_config(config, 'ign_topic')
+        ros_topic = self._get_param_from_config(config, 'ros_topic')
+        convert_args = self._get_param_from_config(config, 'convert_args')
+        type = self._get_param_from_config(config, 'type')
 
-        with_stf = config.get('with_stf')
-        ign_frame_id = config.get('ign_frame_id')
-        ros_frame_id = config.get('ros_frame_id')
-        ign_topic = config.get('ign_topic')
-        ros_topic = config.get('ros_topic')
-        convert_args = config.get('convert_args')
-
-        assert with_stf and ign_frame_id
-        assert with_stf and ros_frame_id
-        assert convert_args
+        assert type
         assert ign_topic or ros_topic
+
+        if with_stf == 'true':
+            assert ign_frame_id
+            assert ros_frame_id
+        if type != 'image_bridge':
+            assert convert_args
 
         return {
             'with_stf': with_stf,
@@ -142,103 +228,14 @@ class MultipleIgnBridgeConfigParser(object):
             'stf_node_name': node_name + '_stf'
         }
 
-def generate_launch_description():
-    config_namespace = 'multiple_ignition_bridge'
+    def _get_param_from_config(self, config, key, default=''):
+        param = config.get(key)
 
-    launch_description = LaunchDescription(
-        generate_declare_launch_arguments()
-    )
+        if param == None:
+            param = default
 
-    def load_launch_arguments(
-        context: LaunchContext,
-        config_file,
-        robot_name,
-        world_name):
+        return param
 
-        config_file_str = context.perform_substitution(config_file)
-        robot_name_str = context.perform_substitution(robot_name)
-        world_name_str = context.perform_substitution(world_name)
-
-        config_parser = MultipleIgnBridgeConfigParser()
-
-        config_parser.set_robot_name(robot_name_str)
-        config_parser.set_world_name(world_name_str)
-        config_parser.open(config_file_str)
-
-        bridge_launch = {
-            'bridge':
-                [ThisLaunchFileDir(), '/ignition_bridge.launch.py'],
-            'image_bridge':
-                [ThisLaunchFileDir(), '/ignition_image_bridge.launch.py']
-        }
-
-        for bridge_node_name in config_parser.bridge_configs:
-            launch_file = bridge_launch[
-                config_parser.get_bridge_type(
-                    bridge_node_name
-                )
-            ]
-
-            launch_description.add_action(GroupAction(actions = [
-                    PushRosNamespace(
-                        namespace = config_parser.get_bridge_namespace(
-                            bridge_node_name
-                        )
-                    ),
-                    IncludeLaunchDescription(
-                        AnyLaunchDescriptionSource(
-                            launch_file
-                        ),
-                        launch_arguments = config_parser.get_launch_arguments(
-                            bridge_node_name
-                        )
-                    )
-                ])
-            )
-
-
-    launch_description.add_action(
-        GroupAction(actions = [
-            OpaqueFunction(
-                function = load_launch_arguments,
-                args = [
-                    LaunchConfiguration('multiple_bridge_config'),
-                    LaunchConfiguration('robot_name'),
-                    LaunchConfiguration('world_name')
-                ]
-            )
-        ])
-    )
-
-    return launch_description
-
-
-def generate_declare_launch_arguments():
-    this_pkg_share_dir = get_package_share_directory('ros_ign_utils')
-
-    return [
-        DeclareLaunchArgument(
-            'multiple_bridge_config',
-            default_value = [
-                os.path.join(
-                    this_pkg_share_dir,
-                    'config',
-                    'multiple_ros_ign_bridge.yaml'
-                )
-            ],
-            description = 'Multiple ros_ign bridge configulation file path (string)'
-        ),
-        DeclareLaunchArgument(
-            'world_name',
-            default_value = ['checker_ground_plane'],
-            description = 'Simulation world name of ignition gazebo (string)'
-        ),
-        DeclareLaunchArgument(
-            'robot_name',
-            default_value = ['test_robot'],
-            description = 'Simulate robot model name (string)'
-        ),
-    ]
 
 if __name__ == '__main__':
     launch_service = LaunchService()

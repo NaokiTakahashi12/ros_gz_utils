@@ -5,18 +5,40 @@ multiple_ignition_bridge:
     ign_frame_id: ${robot}/upper_imu_link/upper_imu
     ros_frame_id: upper_imu_link
     ign_topic: /world/${world}/model/${robot}/link/base_link/sensor/upper_imu/imu
-    ros_topic: /upper_imu/data_raw
-    convert_args: &imu_convert sensor_msgs/msg/Imu[ignition.msgs.IMU
+    ros_topic: upper_imu/data_raw
+    convert_args: sensor_msgs/msg/Imu[ignition.msgs.IMU
   lower_imu_bridge:
     type: bridge
     with_stf: !!str true
     ign_frame_id: ${robot}/lower_imu_link/upper_imu
     ros_frame_id: lower_imu_link
     ign_topic: /world/${world}/model/${robot}/link/base_link/sensor/lower_imu/imu
-    ros_topic: /lower_imu/data_raw
+    ros_topic: lower_imu/data_raw
     convert_args: sensor_msgs/msg/Imu[ignition.msgs.IMU
-  #front_camera_bridge:
-  #  type: image_bridge
-  #joint_states_bridge:
-  #  type: bridge
-  #  namespace: &simulator_namespace /simulator
+  front_camera_info_bridge:
+    type: bridge
+    with_stf: !!str true
+    ign_frame_id: ${robot}/upper_body_link/front_camera
+    ros_frame_id: front_camera_link
+    ign_topic: /world/${world}/model/test_robot/link/upper_body_link/sensor/front_camera/camera_info
+    ros_topic: front_camera/camera_info
+    convert_args: sensor_msgs/msg/CameraInfo[ignition.msgs.CameraInfo
+  front_camera_bridge:
+    type: image_bridge
+    ign_topic: /world/${world}/model/test_robot/link/upper_body_link/sensor/front_camera/image
+    ros_topic: front_camera/image
+  front_depth_camera_bridge:
+    type: image_bridge
+    ign_topic: /world/${world}/model/test_robot/link/upper_body_link/sensor/front_camera/depth_image
+    ros_topic: front_camera/depth_image
+  front_depth_camera_points_bridge:
+    type: bridge
+    ign_topic: /world/${world}/model/test_robot/link/upper_body_link/sensor/front_camera/points
+    ros_topic: front_camera/points
+    convert_args: sensor_msgs/msg/PointCloud2[ignition.msgs.PointCloudPacked
+  joint_states_bridge:
+    type: bridge
+    namespace: /simulator
+    ign_topic: /world/${world}/model/${robot}/joint_state
+    ros_topic: joint_states
+    convert_args: sensor_msgs/msg/JointState[ignition.msgs.Model
