@@ -192,6 +192,16 @@ def generate_launch_nodes():
                     controller_name
                 ]
             ),
+            Node(
+                package = 'controller_manager',
+                executable = 'spawner',
+                name = AnonName('controller_spawner'),
+                arguments = [
+                    'joint_trajectory_controller',
+                    '--controller-manager',
+                    controller_name
+                ]
+            ),
             IncludeLaunchDescription(
                 AnyLaunchDescriptionSource([
                     ThisLaunchFileDir(),

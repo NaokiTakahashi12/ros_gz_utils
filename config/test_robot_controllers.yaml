@@ -5,6 +5,8 @@ controller_manager:
       type: joint_state_broadcaster/JointStateBroadcaster
     diff_drive_controller:
       type: diff_drive_controller/DiffDriveController
+    joint_trajectory_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
 
 diff_drive_controller:
   ros__parameters:
@@ -34,3 +36,15 @@ diff_drive_controller:
       max_velocity: 0.99
       max_acceleration: 0.8
       max_jerk: !!double 10.0
+
+joint_trajectory_controller:
+  ros__parameters:
+    joints:
+      - lower_to_upper_joint
+      - center_lower_arm_joint
+      - center_upper_arm_joint
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
