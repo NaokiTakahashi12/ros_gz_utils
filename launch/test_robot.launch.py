@@ -18,7 +18,8 @@ from launch.substitutions import (
     LaunchConfiguration,
     ThisLaunchFileDir,
     PathJoinSubstitution,
-    Command
+    Command,
+    AnonName
 )
 from launch.events import Shutdown
 from launch.launch_description_sources import AnyLaunchDescriptionSource
@@ -70,6 +71,22 @@ def generate_declare_launch_arguments():
             description = 'Joint state publisher node parameter file (string)'
         ),
         DeclareLaunchArgument(
+            'ros2_controller_config_file',
+            default_value = [
+                os.path.join(
+                    this_pkg_share_dir,
+                    'config',
+                    'test_robot_controllers.yaml'
+                )
+            ],
+            description = 'ros2_controller node parameter file (string)'
+        ),
+        DeclareLaunchArgument(
+            'use_fake_hardware',
+            default_value = ['false'],
+            description = 'Enable fake ros2 hardware (boolean)'
+        ),
+        DeclareLaunchArgument(
             'use_sim_time',
             default_value = ['true'],
             description = 'Enable simulation time (boolean)'
@@ -94,13 +111,17 @@ def generate_launch_nodes():
     robot_description = {
         'robot_description': Command([
             'xacro ',
-            urdf_file
+            urdf_file,
+            ' use_fake_hardware:=',
+            LaunchConfiguration('use_fake_hardware')
         ])
     }
 
     exit_event = EmitEvent(
         event = Shutdown()
     )
+
+    controller_name = 'controller_manager'
 
     return [
         GroupAction(actions = [
@@ -131,6 +152,54 @@ def generate_launch_nodes():
                     {'publish_default_velocities': True},
                     {'publish_default_positions': True},
                     LaunchConfiguration('joint_state_publisher_config_file')
+                ]
+            ),
+            Node(
+                package = 'controller_manager',
+                executable = 'ros2_control_node',
+                output = output,
+                parameters = [
+                    robot_description,
+                    LaunchConfiguration('ros2_controller_config_file'),
+                    {'use_sim_time': use_sim_time}
+                ],
+                remappings = [
+                    ('joint_states', 'joint_state_broadcaster/joint_states'),
+                    # TODO https://github.com/ros-controls/ros2_control/issues/785
+                    ('controller_manager:__name', controller_name)
+                ],
+                condition = IfCondition(
+                    LaunchConfiguration('use_fake_hardware')
+                )
+            ),
+            Node(
+                package = 'controller_manager',
+                executable = 'spawner',
+                name = AnonName('controller_spawner'),
+                arguments = [
+                    'joint_state_broadcaster',
+                    '--controller-manager',
+                    controller_name
+                ]
+            ),
+            Node(
+                package = 'controller_manager',
+                executable = 'spawner',
+                name = AnonName('controller_spawner'),
+                arguments = [
+                    'diff_drive_controller',
+                    '--controller-manager',
+                    controller_name
+                ]
+            ),
+            Node(
+                package = 'controller_manager',
+                executable = 'spawner',
+                name = AnonName('controller_spawner'),
+                arguments = [
+                    'joint_trajectory_controller',
+                    '--controller-manager',
+                    controller_name
                 ]
             ),
             IncludeLaunchDescription(
