@@ -67,11 +67,11 @@
   <xacro:include filename="$(find ros_ign_utils)/models/urdf/wheel_link.xacro"/>
   <xacro:wheel_link prefix="left">
     <parent link="lower_body_link"/>
-    <origin xyz="0 0.225 -0.03" rpy="1.52 0 0"/>
+    <origin xyz="0 0.225 -0.03" rpy="-1.52 0 0"/>
   </xacro:wheel_link>
   <xacro:wheel_link prefix="right">
     <parent link="lower_body_link"/>
-    <origin xyz="0 -0.225 -0.03" rpy="1.52 0 0"/>
+    <origin xyz="0 -0.225 -0.03" rpy="-1.52 0 0"/>
   </xacro:wheel_link>
   <xacro:include filename="$(find ros_ign_utils)/models/urdf/swivel_caster_link.xacro"/>
   <xacro:swivel_caster_link prefix="rear">
