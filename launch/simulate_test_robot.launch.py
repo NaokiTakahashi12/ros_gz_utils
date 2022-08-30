@@ -1,5 +1,9 @@
 #!/usr/bin/env -S python3
 
+import os
+
+from ament_index_python.packages import get_package_share_directory
+
 from launch import LaunchDescription
 from launch.actions import (
     DeclareLaunchArgument,
@@ -22,6 +26,8 @@ def generate_launch_description():
     )
 
 def generate_declare_launch_arguments():
+    this_pkg_share_dir = get_package_share_directory('ros_ign_utils')
+
     return [
         DeclareLaunchArgument(
             'namespace',
@@ -40,8 +46,19 @@ def generate_declare_launch_arguments():
         ),
         DeclareLaunchArgument(
             'robot_model_file',
-            default_value = ['test_robot.urdf.xacro'],
+            default_value = ['test_robot/test_robot.urdf.xacro'],
             description = 'Robot model file (string)'
+        ),
+        DeclareLaunchArgument(
+            'robot_model_path',
+            default_value = [
+                os.path.join(
+                    this_pkg_share_dir,
+                    'models',
+                    'urdf'
+                )
+            ],
+            description = 'Robot model file path (string)'
         ),
         DeclareLaunchArgument(
             'use_sim_time',
@@ -90,7 +107,8 @@ def generate_launch_nodes():
                 'namespace': namespace,
                 'use_sim_time': use_sim_time,
                 'world_name': world_name,
-                'robot_model_file': LaunchConfiguration('robot_model_file')
+                'robot_model_file': LaunchConfiguration('robot_model_file'),
+                'robot_model_path': LaunchConfiguration('robot_model_path')
             }.items()
         ),
         IncludeLaunchDescription(

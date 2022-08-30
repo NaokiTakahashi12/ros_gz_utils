@@ -54,7 +54,8 @@ def generate_declare_launch_arguments():
                 os.path.join(
                     this_pkg_share_dir,
                     'models',
-                    'urdf'
+                    'urdf',
+                    'test_robot'
                 )
             ],
             description = 'Robot model file path (string)'

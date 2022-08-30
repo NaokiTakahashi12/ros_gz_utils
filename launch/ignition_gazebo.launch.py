@@ -63,6 +63,11 @@ def generate_declare_launch_arguments():
             description = 'Simulation world recource file path of ignition server (string)'
         ),
         DeclareLaunchArgument(
+            'model_resource_path',
+            default_value = [''],
+            description = 'Simulation model recource file path of ignition server (string)'
+        ),
+        DeclareLaunchArgument(
             'ignition_gazebo_system_plugin_path',
             default_value = [''],
             description = 'Ignition gazebo system plugin path (string)'
@@ -114,6 +119,36 @@ def generate_local_environment_variables():
                     default_value = ''
                 ), ':',
                 LaunchConfiguration('ignition_gazebo_physics_engine_path')
+            ]
+        ),
+        SetEnvironmentVariable(
+            name = 'SDF_PATH',
+            value = [
+                EnvironmentVariable(
+                    'SDF_PATH',
+                    default_value = ''
+                ), ':',
+                os.path.join(
+                    this_pkg_share_dir,
+                    'models',
+                    'urdf'
+                ), ':',
+                LaunchConfiguration('model_resource_path')
+            ]
+        ),
+        SetEnvironmentVariable(
+            name = 'IGN_FILE_PATH',
+            value = [
+                EnvironmentVariable(
+                    'IGN_FILE_PATH',
+                    default_value = ''
+                ), ':',
+                os.path.join(
+                    this_pkg_share_dir,
+                    'models',
+                    'urdf'
+                ), ':',
+                LaunchConfiguration('model_resource_path')
             ]
         ),
         SetEnvironmentVariable(
