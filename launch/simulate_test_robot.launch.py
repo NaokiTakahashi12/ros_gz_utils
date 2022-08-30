@@ -46,7 +46,7 @@ def generate_declare_launch_arguments():
         ),
         DeclareLaunchArgument(
             'robot_model_file',
-            default_value = ['test_robot.urdf.xacro'],
+            default_value = ['test_robot/test_robot.urdf.xacro'],
             description = 'Robot model file (string)'
         ),
         DeclareLaunchArgument(
@@ -55,8 +55,7 @@ def generate_declare_launch_arguments():
                 os.path.join(
                     this_pkg_share_dir,
                     'models',
-                    'urdf',
-                    'test_robot'
+                    'urdf'
                 )
             ],
             description = 'Robot model file path (string)'

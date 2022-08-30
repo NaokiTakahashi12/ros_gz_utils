@@ -3,7 +3,7 @@
   <world name="checker_ground_plane">
     <physics name="5.0ms" type="ignored">
       <max_step_size>5.0e-3</max_step_size>
-      <real_time_factor>1</real_time_factor>
+      <real_time_factor>1.075</real_time_factor>
       <dart>
         <collision_detector>bullet</collision_detector>
         <solver>
@@ -37,56 +37,11 @@
       <direction>-0.5 0.1 -0.9</direction>
       <cast_shadows>true</cast_shadows>
     </light>
-    <model name="checker_ground_plane">
-      <static>true</static>
+    <include>
+      <name>checker_ground_plane</name>
+      <uri>checker_ground_plane</uri>
       <pose>0 0 -0.1 0 0 0</pose>
-      <link name="checker_ground_plane_link">
-        <pose>0 0 0 0 0 0</pose>
-        <collision name="ground_plane_collision">
-          <geometry>
-            <plane>
-              <normal>0 0 1</normal>
-              <size>100 100</size>
-            </plane>
-          </geometry>
-        </collision>
-        <visual name="ground_plane_0_visual">
-          <pose>16.25 16.25 0 0 0 0</pose>
-          <geometry>
-            <mesh>
-              <scale>0.5 0.5 0.5</scale>
-              <uri>../meshes/checker_ground_plane.dae</uri>
-            </mesh>
-          </geometry>
-        </visual>
-        <visual name="ground_plane_1_visual">
-          <pose>-16.25 16.25 0 0 0 0</pose>
-          <geometry>
-            <mesh>
-              <scale>0.5 0.5 0.5</scale>
-              <uri>../meshes/checker_ground_plane.dae</uri>
-            </mesh>
-          </geometry>
-        </visual>
-        <visual name="ground_plane_2_visual">
-          <pose>-16.25 -16.25 0 0 0 0</pose>
-          <geometry>
-            <mesh>
-              <scale>0.5 0.5 0.5</scale>
-              <uri>../meshes/checker_ground_plane.dae</uri>
-            </mesh>
-          </geometry>
-        </visual>
-        <visual name="ground_plane_3_visual">
-          <pose>16.25 -16.25 0 0 0 0</pose>
-          <geometry>
-            <mesh>
-              <scale>0.5 0.5 0.5</scale>
-              <uri>../meshes/checker_ground_plane.dae</uri>
-            </mesh>
-          </geometry>
-        </visual>
-      </link>
-    </model>
+      <static>true</static>
+    </include>
   </world>
 </sdf>
