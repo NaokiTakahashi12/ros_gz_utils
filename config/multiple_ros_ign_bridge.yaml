@@ -36,6 +36,14 @@ multiple_ignition_bridge:
     ign_topic: /world/${world}/model/test_robot/link/upper_body_link/sensor/front_camera/points
     ros_topic: front_camera/points
     convert_args: sensor_msgs/msg/PointCloud2[ignition.msgs.PointCloudPacked
+  upper_scan_bridge:
+    type: bridge
+    with_stf: !!str true
+    ign_frame_id: ${robot}/upper_body_link/upper_scan
+    ros_frame_id: upper_scan_link
+    ign_topic: /world/${world}/model/${robot}/link/upper_body_link/sensor/upper_scan/scan
+    ros_topic: upper_scan/scan_raw
+    convert_args: sensor_msgs/msg/LaserScan[ignition.msgs.LaserScan
   joint_states_bridge:
     type: bridge
     namespace: /simulator
