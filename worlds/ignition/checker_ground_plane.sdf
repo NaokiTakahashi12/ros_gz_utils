@@ -24,6 +24,14 @@
       <shadows>true</shadows>
       <sky/>
     </scene>
+    <spherical_coordinates>
+      <surface_model>EARTH_WGS84</surface_model>
+      <world_frame_orientation>ENU</world_frame_orientation>
+      <latitude_deg>-23</latitude_deg>
+      <longitude_deg>-43</longitude_deg>
+      <elevation>0</elevation>
+      <heading_deg>0</heading_deg>
+    </spherical_coordinates>
     <light type="directional" name="sun">
       <pose>0 0 50 0 0 0</pose>
       <diffuse>0.8 0.8 0.8 1</diffuse>

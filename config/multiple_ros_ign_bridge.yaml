@@ -50,3 +50,11 @@ multiple_ignition_bridge:
     ign_topic: /world/${world}/model/${robot}/joint_state
     ros_topic: joint_states
     convert_args: sensor_msgs/msg/JointState[ignition.msgs.Model
+  navsat_bridge:
+    type: bridge
+    with_stf: !!str true
+    ign_frame_id: ${robot}/upper_body_link/upper_navsat
+    ros_frame_id: upper_navsat_link
+    ign_topic: /world/${world}/model/${robot}/link/upper_body_link/sensor/upper_navsat/navsat
+    ros_topic: upper_navsat
+    convert_args: sensor_msgs/msg/NavSatFix[ignition.msgs.NavSat
