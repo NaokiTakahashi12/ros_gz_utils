@@ -85,7 +85,7 @@
   <xacro:include filename="arm_link.xacro"/>
   <xacro:arm_link prefix="center">
     <parent link="upper_body_link"/>
-    <origin xyz="0 0 0.1" rpy="0 0 0"/>
+    <origin xyz="0 0 0.2" rpy="0 0 0"/>
   </xacro:arm_link>
   <xacro:include filename="camera_link_macro.xacro"/>
   <xacro:camera_link_macro prefix="front">
@@ -101,6 +101,16 @@
     <parent link="lower_body_link"/>
     <origin xyz="-0.05 0 0" rpy="0 0 0"/>
   </xacro:imu_link_macro>
+  <xacro:include filename="navsat_link_macro.xacro"/>
+  <xacro:navsat_link_macro prefix="upper">
+    <parent link="upper_body_link"/>
+    <origin xyz="0.1 0 0.05" rpy="0 0 0"/>
+  </xacro:navsat_link_macro>
+  <xacro:include filename="scan_link_macro.xacro"/>
+  <xacro:scan_link_macro prefix="upper">
+    <parent link="upper_body_link"/>
+    <origin xyz="0 0 0.125" rpy="0 0 0"/>
+  </xacro:scan_link_macro>
   <gazebo>
     <plugin filename="ignition-gazebo-joint-state-publisher-system" name="ignition::gazebo::systems::JointStatePublisher">
     </plugin>
