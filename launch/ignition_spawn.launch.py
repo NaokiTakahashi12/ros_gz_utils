@@ -109,6 +109,11 @@ def generate_declare_launch_arguments():
             )
         ),
         DeclareLaunchArgument(
+            'xacro_args',
+            default_value = [''],
+            description = 'xacro arguments (string)'
+        ),
+        DeclareLaunchArgument(
             'world_name',
             default_value = ['default'],
             description = 'Simulation world name of ignition gazebo (string)'
@@ -124,9 +129,13 @@ def generate_launch_nodes():
     output = 'screen'
 
     namespace = LaunchConfiguration('namespace')
-    use_sim_time = LaunchConfiguration('use_sim_time')
     world_name = LaunchConfiguration('world_name')
 
+    use_sim_time = {
+        'use_sim_time': LaunchConfiguration('use_sim_time')
+    }
+
+    world = ['-world', world_name]
     spawn_model_pose = [
         '-x', LaunchConfiguration('spawn_position_x'),
         '-y', LaunchConfiguration('spawn_position_y'),
@@ -144,18 +153,22 @@ def generate_launch_nodes():
             namespace = namespace,
             output = output,
             parameters = [
-                {'use_sim_time': use_sim_time},
+                use_sim_time
             ],
             arguments = [
-                '-world', world_name,
-                '-string', Command([
+                '-string',
+                Command([
                     'xacro ',
                     PathJoinSubstitution([
                         LaunchConfiguration('robot_model_path'),
                         LaunchConfiguration('robot_model_file')
-                    ])
+                    ]),
+                    ' ',
+                    LaunchConfiguration('xacro_args')
                 ]),
-            ] + spawn_model_pose,
+            ] 
+            + spawn_model_pose
+            + world,
             condition = UnlessCondition(
                 LaunchConfiguration('robot_model_from_topic')
             )
@@ -167,12 +180,14 @@ def generate_launch_nodes():
             namespace = namespace,
             output = output,
             parameters = [
-                {'use_sim_time': use_sim_time},
+                use_sim_time
             ],
             arguments = [
-                '-world', world_name,
-                '-topic', LaunchConfiguration('robot_description_topic'),
-            ] + spawn_model_pose,
+                '-topic',
+                LaunchConfiguration('robot_description_topic'),
+            ]
+            + spawn_model_pose
+            + world,
             condition = IfCondition(
                 LaunchConfiguration('robot_model_from_topic')
             )
