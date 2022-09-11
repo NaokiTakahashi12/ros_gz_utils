@@ -44,6 +44,36 @@ def generate_declare_launch_arguments():
             description = 'Subscribe /clock topic (boolean)'
         ),
         DeclareLaunchArgument(
+            'spawn_position_x',
+            default_value = ['0.0'],
+            description = 'Spawn world position x (float)'
+        ),
+        DeclareLaunchArgument(
+            'spawn_position_y',
+            default_value = ['0.0'],
+            description = 'Spawn world position y (float)'
+        ),
+        DeclareLaunchArgument(
+            'spawn_position_z',
+            default_value = ['0.5'],
+            description = 'Spawn world position z (float)'
+        ),
+        DeclareLaunchArgument(
+            'spawn_orientation_r',
+            default_value = ['0.0'],
+            description = 'Spawn world orientation roll (float)'
+        ),
+        DeclareLaunchArgument(
+            'spawn_orientation_p',
+            default_value = ['0.0'],
+            description = 'Spawn world orientation pitch (float)'
+        ),
+        DeclareLaunchArgument(
+            'spawn_orientation_y',
+            default_value = ['0.0'],
+            description = 'Spawn world orientation yaw (float)'
+        ),
+        DeclareLaunchArgument(
             'robot_model_from_topic',
             default_value = ['false'],
             description = 'Get robot description from topic (boolean)'
@@ -97,6 +127,15 @@ def generate_launch_nodes():
     use_sim_time = LaunchConfiguration('use_sim_time')
     world_name = LaunchConfiguration('world_name')
 
+    spawn_model_pose = [
+        '-x', LaunchConfiguration('spawn_position_x'),
+        '-y', LaunchConfiguration('spawn_position_y'),
+        '-z', LaunchConfiguration('spawn_position_z'),
+        '-R', LaunchConfiguration('spawn_orientation_r'),
+        '-P', LaunchConfiguration('spawn_orientation_p'),
+        '-Y', LaunchConfiguration('spawn_orientation_y')
+    ]
+
     return [
         Node(
             package = 'ros_ign_gazebo',
@@ -116,13 +155,7 @@ def generate_launch_nodes():
                         LaunchConfiguration('robot_model_file')
                     ])
                 ]),
-                '-x', '0',
-                '-y', '0',
-                '-z', '0.5',
-                '-R', '0',
-                '-P', '0',
-                '-Y', '0'
-            ],
+            ] + spawn_model_pose,
             condition = UnlessCondition(
                 LaunchConfiguration('robot_model_from_topic')
             )
@@ -139,13 +172,7 @@ def generate_launch_nodes():
             arguments = [
                 '-world', world_name,
                 '-topic', LaunchConfiguration('robot_description_topic'),
-                '-x', '0',
-                '-y', '0',
-                '-z', '0.5',
-                '-R', '0',
-                '-P', '0',
-                '-Y', '0'
-            ],
+            ] + spawn_model_pose,
             condition = IfCondition(
                 LaunchConfiguration('robot_model_from_topic')
             )
