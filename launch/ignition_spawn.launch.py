@@ -9,6 +9,10 @@ from launch.actions import (
     DeclareLaunchArgument,
     SetEnvironmentVariable
 )
+from launch.conditions import (
+    IfCondition,
+    UnlessCondition
+)
 from launch.substitutions import (
     LaunchConfiguration,
     EnvironmentVariable,
@@ -40,9 +44,55 @@ def generate_declare_launch_arguments():
             description = 'Subscribe /clock topic (boolean)'
         ),
         DeclareLaunchArgument(
+            'spawn_position_x',
+            default_value = ['0.0'],
+            description = 'Spawn world position x (float)'
+        ),
+        DeclareLaunchArgument(
+            'spawn_position_y',
+            default_value = ['0.0'],
+            description = 'Spawn world position y (float)'
+        ),
+        DeclareLaunchArgument(
+            'spawn_position_z',
+            default_value = ['0.5'],
+            description = 'Spawn world position z (float)'
+        ),
+        DeclareLaunchArgument(
+            'spawn_orientation_r',
+            default_value = ['0.0'],
+            description = 'Spawn world orientation roll (float)'
+        ),
+        DeclareLaunchArgument(
+            'spawn_orientation_p',
+            default_value = ['0.0'],
+            description = 'Spawn world orientation pitch (float)'
+        ),
+        DeclareLaunchArgument(
+            'spawn_orientation_y',
+            default_value = ['0.0'],
+            description = 'Spawn world orientation yaw (float)'
+        ),
+        DeclareLaunchArgument(
+            'robot_model_from_topic',
+            default_value = ['false'],
+            description = 'Get robot description from topic (boolean)'
+        ),
+        DeclareLaunchArgument(
+            'robot_description_topic',
+            default_value = ['robot_description'],
+            description = 'robot_description topic (string)',
+            condition = IfCondition(
+                LaunchConfiguration('robot_model_from_topic')
+            )
+        ),
+        DeclareLaunchArgument(
             'robot_model_file',
             default_value = ['test_robot.urdf.xacro'],
-            description = 'Robot model file (string)'
+            description = 'Robot model file (string)',
+            condition = UnlessCondition(
+                LaunchConfiguration('robot_model_from_topic')
+            )
         ),
         DeclareLaunchArgument(
             'robot_model_path',
@@ -53,7 +103,15 @@ def generate_declare_launch_arguments():
                     'urdf'
                 )
             ],
-            description = 'Robot model file path (string)'
+            description = 'Robot model file path (string)',
+            condition = UnlessCondition(
+                LaunchConfiguration('robot_model_from_topic')
+            )
+        ),
+        DeclareLaunchArgument(
+            'xacro_args',
+            default_value = [''],
+            description = 'xacro arguments (string)'
         ),
         DeclareLaunchArgument(
             'world_name',
@@ -71,14 +129,21 @@ def generate_launch_nodes():
     output = 'screen'
 
     namespace = LaunchConfiguration('namespace')
-    use_sim_time = LaunchConfiguration('use_sim_time')
-    robot_model_file = LaunchConfiguration('robot_model_file')
-    robot_model_path = LaunchConfiguration('robot_model_path')
     world_name = LaunchConfiguration('world_name')
 
-    urdf_file = PathJoinSubstitution([
-        robot_model_path, robot_model_file
-    ])
+    use_sim_time = {
+        'use_sim_time': LaunchConfiguration('use_sim_time')
+    }
+
+    world = ['-world', world_name]
+    spawn_model_pose = [
+        '-x', LaunchConfiguration('spawn_position_x'),
+        '-y', LaunchConfiguration('spawn_position_y'),
+        '-z', LaunchConfiguration('spawn_position_z'),
+        '-R', LaunchConfiguration('spawn_orientation_r'),
+        '-P', LaunchConfiguration('spawn_orientation_p'),
+        '-Y', LaunchConfiguration('spawn_orientation_y')
+    ]
 
     return [
         Node(
@@ -88,18 +153,44 @@ def generate_launch_nodes():
             namespace = namespace,
             output = output,
             parameters = [
-                {'use_sim_time': use_sim_time},
+                use_sim_time
             ],
             arguments = [
-                '-world', world_name,
-                '-string', Command(['xacro ', urdf_file]),
-                '-x', '0',
-                '-y', '0',
-                '-z', '0.5',
-                '-R', '0',
-                '-P', '0',
-                '-Y', '0'
+                '-string',
+                Command([
+                    'xacro ',
+                    PathJoinSubstitution([
+                        LaunchConfiguration('robot_model_path'),
+                        LaunchConfiguration('robot_model_file')
+                    ]),
+                    ' ',
+                    LaunchConfiguration('xacro_args')
+                ]),
+            ] 
+            + spawn_model_pose
+            + world,
+            condition = UnlessCondition(
+                LaunchConfiguration('robot_model_from_topic')
+            )
+        ),
+        Node(
+            package = 'ros_ign_gazebo',
+            executable = 'create',
+            name = LaunchConfiguration('spawn_node_name'),
+            namespace = namespace,
+            output = output,
+            parameters = [
+                use_sim_time
+            ],
+            arguments = [
+                '-topic',
+                LaunchConfiguration('robot_description_topic'),
             ]
+            + spawn_model_pose
+            + world,
+            condition = IfCondition(
+                LaunchConfiguration('robot_model_from_topic')
+            )
         )
     ]
 
