@@ -36,6 +36,8 @@ def generate_launch_description():
     )
 
 def generate_declare_launch_arguments():
+    this_pkg_share_dir = get_package_share_directory('ros_ign_utils')
+
     return [
         DeclareLaunchArgument(
             'namespace',
@@ -81,6 +83,17 @@ def generate_declare_launch_arguments():
             'use_sim_gui',
             default_value = ['true'],
             description = 'Enable ignition gazebo gui (string)'
+        ),
+        DeclareLaunchArgument(
+            'sim_gui_config_file_path',
+            default_value = [
+                os.path.join(
+                    this_pkg_share_dir,
+                    'config',
+                    'ign_gui.config'
+                )
+            ],
+            description = 'Ignition gazebo GUI configuration file full path (string)'
         ),
         DeclareLaunchArgument(
             'debug',
@@ -176,6 +189,7 @@ def generate_launch_nodes():
     namespace = LaunchConfiguration('namespace')
     world_name = LaunchConfiguration('world_name')
     world_file = LaunchConfiguration('world_file')
+    sim_gui_config_file_path = LaunchConfiguration('sim_gui_config_file_path')
     debug_condition = LaunchConfiguration('debug')
 
     exit_event = EmitEvent(
@@ -214,7 +228,9 @@ def generate_launch_nodes():
             ExecuteProcess(
                 shell = True,
                 cmd = [
-                    'ign', 'gazebo', '-g', world_file
+                    'ign', 'gazebo',
+                    '-g', world_file,
+                    '--gui-config', sim_gui_config_file_path
                 ],
                 name = 'ign_gui',
                 output = output,
