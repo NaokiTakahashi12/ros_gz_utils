@@ -1,4 +1,4 @@
-# ros_ign_utils
+# ros_gz_utils
 
 This package is intended to allow integration of ros2 and ignition gazebos with a minimum of configuration items.
 

@@ -98,7 +98,7 @@ def generate_declare_launch_arguments():
             'robot_model_path',
             default_value = [
                 os.path.join(
-                    get_package_share_directory('ros_ign_utils'),
+                    get_package_share_directory('ros_gz_utils'),
                     'models',
                     'urdf'
                 )
@@ -195,7 +195,7 @@ def generate_launch_nodes():
     ]
 
 def generate_local_environment_variables():
-    this_pkg_share_dir = get_package_share_directory('ros_ign_utils')
+    this_pkg_share_dir = get_package_share_directory('ros_gz_utils')
 
     return [
         SetEnvironmentVariable(

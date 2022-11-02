@@ -115,7 +115,7 @@
     <plugin filename="ignition-gazebo-joint-state-publisher-system" name="ignition::gazebo::systems::JointStatePublisher">
     </plugin>
     <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
-      <parameters>$(find ros_ign_utils)/config/test_robot_controllers.yaml</parameters>
+      <parameters>$(find ros_gz_utils)/config/test_robot_controllers.yaml</parameters>
       <ros>
         <remapping>joint_states:=joint_state_broadcaster/joint_states</remapping>
       </ros>
