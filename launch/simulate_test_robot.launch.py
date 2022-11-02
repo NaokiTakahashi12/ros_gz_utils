@@ -26,7 +26,7 @@ def generate_launch_description():
     )
 
 def generate_declare_launch_arguments():
-    this_pkg_share_dir = get_package_share_directory('ros_ign_utils')
+    this_pkg_share_dir = get_package_share_directory('ros_gz_utils')
 
     return [
         DeclareLaunchArgument(
