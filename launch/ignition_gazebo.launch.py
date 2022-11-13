@@ -4,6 +4,7 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 
+from launch import LaunchService
 from launch import LaunchDescription
 from launch.actions import (
     DeclareLaunchArgument,
@@ -28,6 +29,7 @@ from launch_ros.actions import (
     PushRosNamespace
 )
 
+
 def generate_launch_description():
     return LaunchDescription(
         generate_declare_launch_arguments()
@@ -35,111 +37,113 @@ def generate_launch_description():
         + generate_launch_nodes()
     )
 
+
 def generate_declare_launch_arguments():
     this_pkg_share_dir = get_package_share_directory('ros_gz_utils')
 
     return [
         DeclareLaunchArgument(
             'namespace',
-            default_value = ['simulator'],
-            description = 'Namespace of ignition gazebo simulator (string)'
+            default_value=['simulator'],
+            description='Namespace of ignition gazebo simulator (string)'
         ),
         DeclareLaunchArgument(
             'world_name',
-            default_value = ['checker_ground_plane'],
-            description = 'Simulation world name of ignition gazebo (string)'
+            default_value=['checker_ground_plane'],
+            description='Simulation world name of ignition gazebo (string)'
         ),
         DeclareLaunchArgument(
             'world_file',
-            default_value = [LaunchConfiguration('world_name'), '.sdf'],
-            description = 'Simulation world file of ignition gazebo (string)'
+            default_value=[LaunchConfiguration('world_name'), '.sdf'],
+            description='Simulation world file of ignition gazebo (string)'
         ),
         DeclareLaunchArgument(
             'world_path',
-            default_value = [''],
-            description = 'Simulation world file path of ignition gazebo (string)'
+            default_value=[''],
+            description='Simulation world file path of ignition gazebo (string)'
         ),
         DeclareLaunchArgument(
             'resource_package_name',
-            default_value = [''],
-            description = 'Simulation world recource file path of ignition server (string)'
+            default_value=[''],
+            description='Simulation world recource file path of ignition server (string)'
         ),
         DeclareLaunchArgument(
             'model_resource_path',
-            default_value = [''],
-            description = 'Simulation model recource file path of ignition server (string)'
+            default_value=[''],
+            description='Simulation model recource file path of ignition server (string)'
         ),
         DeclareLaunchArgument(
             'ignition_gazebo_system_plugin_path',
-            default_value = [''],
-            description = 'Ignition gazebo system plugin path (string)'
+            default_value=[''],
+            description='Ignition gazebo system plugin path (string)'
         ),
         DeclareLaunchArgument(
             'ignition_gazebo_physics_engine_path',
-            default_value = [''],
-            description = 'Ignition gazebo physics engine path (string)'
+            default_value=[''],
+            description='Ignition gazebo physics engine path (string)'
         ),
         DeclareLaunchArgument(
             'use_sim_gui',
-            default_value = ['true'],
-            description = 'Enable ignition gazebo gui (string)'
+            default_value=['true'],
+            description='Enable ignition gazebo gui (string)'
         ),
         DeclareLaunchArgument(
             'sim_gui_config_file_path',
-            default_value = [
+            default_value=[
                 os.path.join(
                     this_pkg_share_dir,
                     'config',
                     'ign_gui.config'
                 )
             ],
-            description = 'Ignition gazebo GUI configuration file full path (string)'
+            description='Ignition gazebo GUI configuration file full path (string)'
         ),
         DeclareLaunchArgument(
             'debug',
-            default_value = ['false'],
-            description = 'Enable debug output (boolean)'
+            default_value=['false'],
+            description='Enable debug output (boolean)'
         )
     ]
+
 
 def generate_local_environment_variables():
     this_pkg_share_dir = get_package_share_directory('ros_gz_utils')
 
     return [
         SetEnvironmentVariable(
-            name = 'IGN_GAZEBO_SYSTEM_PLUGIN_PATH',
-            value = [
+            name='IGN_GAZEBO_SYSTEM_PLUGIN_PATH',
+            value=[
                 EnvironmentVariable(
                     'IGN_GAZEBO_SYSTEM_PLUGIN_PATH',
-                    default_value = ''
+                    default_value=''
                 ), ':',
                 EnvironmentVariable(
                     'LD_LIBRARY_PATH',
-                    default_value = ''
+                    default_value=''
                 ), ':',
                 LaunchConfiguration('ignition_gazebo_system_plugin_path')
             ]
         ),
         SetEnvironmentVariable(
-            name = 'IGN_GAZEBO_PHYSICS_ENGINE_PATH',
-            value = [
+            name='IGN_GAZEBO_PHYSICS_ENGINE_PATH',
+            value=[
                 EnvironmentVariable(
                     'IGN_GAZEBO_PHYSICS_ENGINE_PATH',
-                    default_value = ''
+                    default_value=''
                 ), ':',
                 EnvironmentVariable(
                     'LD_LIBRARY_PATH',
-                    default_value = ''
+                    default_value=''
                 ), ':',
                 LaunchConfiguration('ignition_gazebo_physics_engine_path')
             ]
         ),
         SetEnvironmentVariable(
-            name = 'SDF_PATH',
-            value = [
+            name='SDF_PATH',
+            value=[
                 EnvironmentVariable(
                     'SDF_PATH',
-                    default_value = ''
+                    default_value=''
                 ), ':',
                 os.path.join(
                     this_pkg_share_dir,
@@ -150,11 +154,11 @@ def generate_local_environment_variables():
             ]
         ),
         SetEnvironmentVariable(
-            name = 'IGN_FILE_PATH',
-            value = [
+            name='IGN_FILE_PATH',
+            value=[
                 EnvironmentVariable(
                     'IGN_FILE_PATH',
-                    default_value = ''
+                    default_value=''
                 ), ':',
                 os.path.join(
                     this_pkg_share_dir,
@@ -165,11 +169,11 @@ def generate_local_environment_variables():
             ]
         ),
         SetEnvironmentVariable(
-            name = 'IGN_GAZEBO_RESOURCE_PATH',
-            value = [
+            name='IGN_GAZEBO_RESOURCE_PATH',
+            value=[
                 EnvironmentVariable(
                     'IGN_GAZEBO_RESOURCE_PATH',
-                    default_value = ''
+                    default_value=''
                 ), ':',
                 os.path.join(
                     this_pkg_share_dir, 'worlds', 'ignition'
@@ -183,6 +187,7 @@ def generate_local_environment_variables():
         )
     ]
 
+
 def generate_launch_nodes():
     output = 'screen'
 
@@ -193,55 +198,55 @@ def generate_launch_nodes():
     debug_condition = LaunchConfiguration('debug')
 
     exit_event = EmitEvent(
-        event = Shutdown()
+        event=Shutdown()
     )
 
     return [
-        GroupAction(actions = [
+        GroupAction(actions=[
             PushRosNamespace(
-                namespace = namespace
+                namespace=namespace
             ),
             ExecuteProcess(
-                shell = True,
-                cmd = [
+                shell=True,
+                cmd=[
                     'ign', 'gazebo', '-s', '-r', world_file
                 ],
-                name = 'ign_gazebo',
-                output = output,
-                condition = UnlessCondition(debug_condition),
-                on_exit = [
+                name='ign_gazebo',
+                output=output,
+                condition=UnlessCondition(debug_condition),
+                on_exit=[
                     exit_event
                 ]
             ),
             ExecuteProcess(
-                shell = True,
-                cmd = [
+                shell=True,
+                cmd=[
                     'ign', 'gazebo', '-s', '-r', '-v4', world_file
                 ],
-                name = 'ign_gazebo',
-                output = output,
-                condition = IfCondition(debug_condition),
-                on_exit = [
+                name='ign_gazebo',
+                output=output,
+                condition=IfCondition(debug_condition),
+                on_exit=[
                     exit_event
                 ]
             ),
             ExecuteProcess(
-                shell = True,
-                cmd = [
+                shell=True,
+                cmd=[
                     'ign', 'gazebo',
                     '-g', world_file,
                     '--gui-config', sim_gui_config_file_path
                 ],
-                name = 'ign_gui',
-                output = output,
-                respawn = 'true',
-                condition = IfCondition(LaunchConfiguration('use_sim_gui'))
+                name='ign_gui',
+                output=output,
+                respawn='true',
+                condition=IfCondition(LaunchConfiguration('use_sim_gui'))
             ),
             IncludeLaunchDescription(
                 AnyLaunchDescriptionSource([
                     ThisLaunchFileDir(), '/ignition_bridge.launch.py'
                 ]),
-                launch_arguments = {
+                launch_arguments={
                     'with_stf': 'false',
                     'ign_topic': ['/world/', world_name, '/clock'],
                     'ros_topic': '/clock',
@@ -252,7 +257,7 @@ def generate_launch_nodes():
                 AnyLaunchDescriptionSource([
                     ThisLaunchFileDir(), '/ignition_bridge.launch.py'
                 ]),
-                launch_arguments = {
+                launch_arguments={
                     'with_stf': 'false',
                     'ign_topic': '/world/default/pose/info',
                     'ros_topic': 'tf_static',
@@ -263,7 +268,7 @@ def generate_launch_nodes():
                 AnyLaunchDescriptionSource([
                     ThisLaunchFileDir(), '/ignition_bridge.launch.py'
                 ]),
-                launch_arguments = {
+                launch_arguments={
                     'with_stf': 'false',
                     'ign_topic': '/world/default/dynamic_pose/info',
                     'ros_topic': 'tf',
@@ -273,8 +278,8 @@ def generate_launch_nodes():
         ])
     ]
 
+
 if __name__ == '__main__':
     launch_service = LaunchService()
     launch_service.include_launch_description(generate_launch_description())
     launch_service.run()
-

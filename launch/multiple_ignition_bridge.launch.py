@@ -6,10 +6,9 @@ import yaml
 import string
 import re
 
-from typing import NamedTuple
-
 from ament_index_python.packages import get_package_share_directory
 
+from launch import LaunchService
 from launch import (
     LaunchDescription,
     LaunchContext
@@ -22,12 +21,10 @@ from launch.actions import (
 )
 from launch.substitutions import (
     LaunchConfiguration,
-    ThisLaunchFileDir,
-    AnonName
+    ThisLaunchFileDir
 )
 from launch.launch_description_sources import AnyLaunchDescriptionSource
 from launch_ros.actions import (
-    Node,
     PushRosNamespace
 )
 
@@ -41,7 +38,8 @@ def generate_launch_description():
         context: LaunchContext,
         config_file,
         robot_name,
-        world_name):
+        world_name
+    ):
 
         config_file_str = context.perform_substitution(config_file)
         robot_name_str = context.perform_substitution(robot_name)
@@ -67,9 +65,9 @@ def generate_launch_description():
                 )
             ]
 
-            launch_description.add_action(GroupAction(actions = [
+            launch_description.add_action(GroupAction(actions=[
                     PushRosNamespace(
-                        namespace = config_parser.get_bridge_namespace(
+                        namespace=config_parser.get_bridge_namespace(
                             bridge_node_name
                         )
                     ),
@@ -77,7 +75,7 @@ def generate_launch_description():
                         AnyLaunchDescriptionSource(
                             launch_file
                         ),
-                        launch_arguments = config_parser.get_launch_arguments(
+                        launch_arguments=config_parser.get_launch_arguments(
                             bridge_node_name
                         )
                     )
@@ -85,10 +83,10 @@ def generate_launch_description():
             )
 
     launch_description.add_action(
-        GroupAction(actions = [
+        GroupAction(actions=[
             OpaqueFunction(
-                function = load_launch_arguments,
-                args = [
+                function=load_launch_arguments,
+                args=[
                     LaunchConfiguration('multiple_bridge_config'),
                     LaunchConfiguration('robot_name'),
                     LaunchConfiguration('world_name')
@@ -106,26 +104,27 @@ def generate_declare_launch_arguments():
     return [
         DeclareLaunchArgument(
             'multiple_bridge_config',
-            default_value = [
+            default_value=[
                 os.path.join(
                     this_pkg_share_dir,
                     'config',
                     'multiple_ros_ign_bridge.yaml'
                 )
             ],
-            description = 'Multiple ros_ign bridge configulation file path (string)'
+            description='Multiple ros_ign bridge configulation file path (string)'
         ),
         DeclareLaunchArgument(
             'world_name',
-            default_value = ['checker_ground_plane'],
-            description = 'Simulation world name of ignition gazebo (string)'
+            default_value=['checker_ground_plane'],
+            description='Simulation world name of ignition gazebo (string)'
         ),
         DeclareLaunchArgument(
             'robot_name',
-            default_value = ['test_robot'],
-            description = 'Simulate robot model name (string)'
+            default_value=['test_robot'],
+            description='Simulate robot model name (string)'
         ),
     ]
+
 
 class MultipleIgnBridgeConfigParser(object):
     def __init__(self):
@@ -159,10 +158,10 @@ class MultipleIgnBridgeConfigParser(object):
             )
             yaml_config = yaml.load(
                 file,
-                Loader = yaml_loader
+                Loader=yaml_loader
             )
 
-            if yaml_config.get(self.config_namespace) == None:
+            if yaml_config.get(self.config_namespace) is None:
                 print('Not found bridge configuration namespace')
                 sys.exit(1)
 
@@ -174,14 +173,14 @@ class MultipleIgnBridgeConfigParser(object):
     def get_bridge_type(self, node_name):
         type = self.bridge_configs[node_name].get('type')
 
-        assert type != None
+        assert type is not None
 
         return type
 
     def get_bridge_namespace(self, node_name):
         namespace = self.bridge_configs[node_name].get('namespace')
 
-        if namespace == None:
+        if namespace is None:
             namespace = ''
 
         return namespace
@@ -231,7 +230,7 @@ class MultipleIgnBridgeConfigParser(object):
     def _get_param_from_config(self, config, key, default=''):
         param = config.get(key)
 
-        if param == None:
+        if param is None:
             param = default
 
         return param
@@ -241,4 +240,3 @@ if __name__ == '__main__':
     launch_service = LaunchService()
     launch_service.include_launch_description(generate_launch_description())
     launch_service.run()
-
