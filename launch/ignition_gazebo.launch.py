@@ -259,7 +259,7 @@ def generate_launch_nodes():
                 ],
                 name='ign_gui',
                 output=output,
-                respawn='true',
+                respawn=True,
                 condition=IfCondition(LaunchConfiguration('use_sim_gui'))
             ),
             IncludeLaunchDescription(
