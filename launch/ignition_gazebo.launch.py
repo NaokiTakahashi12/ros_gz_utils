@@ -129,35 +129,140 @@ def generate_declare_launch_arguments():
 def generate_local_environment_variables():
     this_pkg_share_dir = get_package_share_directory('ros_gz_utils')
 
-    return [
-        SetEnvironmentVariable(
-            name='IGN_GAZEBO_SYSTEM_PLUGIN_PATH',
-            value=[
-                EnvironmentVariable(
-                    'IGN_GAZEBO_SYSTEM_PLUGIN_PATH',
-                    default_value=''
-                ), ':',
-                EnvironmentVariable(
-                    'LD_LIBRARY_PATH',
-                    default_value=''
-                ), ':',
-                LaunchConfiguration('ignition_gazebo_system_plugin_path')
-            ]
-        ),
-        SetEnvironmentVariable(
-            name='IGN_GAZEBO_PHYSICS_ENGINE_PATH',
-            value=[
-                EnvironmentVariable(
-                    'IGN_GAZEBO_PHYSICS_ENGINE_PATH',
-                    default_value=''
-                ), ':',
-                EnvironmentVariable(
-                    'LD_LIBRARY_PATH',
-                    default_value=''
-                ), ':',
-                LaunchConfiguration('ignition_gazebo_physics_engine_path')
-            ]
-        ),
+    gazebo_env_variables = []
+
+    gz_version_env_name = 'IGNITION_VERSION'
+
+    if os.getenv(gz_version_env_name) is None:
+        raise KeyError('Please export ' + gz_version_env_name)
+    if os.getenv(gz_version_env_name) == 'garden':
+        gazebo_env_variables = [
+            SetEnvironmentVariable(
+                name='GZ_GAZEBO_SYSTEM_PLUGIN_PATH',
+                value=[
+                    EnvironmentVariable(
+                        'GZ_GAZEBO_SYSTEM_PLUGIN_PATH',
+                        default_value=''
+                    ), ':',
+                    EnvironmentVariable(
+                        'LD_LIBRARY_PATH',
+                        default_value=''
+                    ), ':',
+                    LaunchConfiguration('ignition_gazebo_system_plugin_path')
+                ]
+            ),
+            SetEnvironmentVariable(
+                name='GZ_GAZEBO_PHYSICS_ENGINE_PATH',
+                value=[
+                    EnvironmentVariable(
+                        'GZ_GAZEBO_PHYSICS_ENGINE_PATH',
+                        default_value=''
+                    ), ':',
+                    EnvironmentVariable(
+                        'LD_LIBRARY_PATH',
+                        default_value=''
+                    ), ':',
+                    LaunchConfiguration('ignition_gazebo_physics_engine_path')
+                ]
+            ),
+            SetEnvironmentVariable(
+                name='GZ_FILE_PATH',
+                value=[
+                    EnvironmentVariable(
+                        'GZ_FILE_PATH',
+                        default_value=''
+                    ), ':',
+                    os.path.join(
+                        this_pkg_share_dir,
+                        'models',
+                        'urdf'
+                    ), ':',
+                    LaunchConfiguration('model_resource_path')
+                ]
+            ),
+            SetEnvironmentVariable(
+                name='GZ_SIM_RESOURCE_PATH',
+                value=[
+                    EnvironmentVariable(
+                        'GZ_GAZEBO_RESOURCE_PATH',
+                        default_value=''
+                    ), ':',
+                    os.path.join(
+                        this_pkg_share_dir, 'worlds', 'ignition'
+                    ), ':',
+                    os.path.join(
+                        this_pkg_share_dir, '..'
+                    ), ':',
+                    LaunchConfiguration('resource_package_name'), '/..:',
+                    LaunchConfiguration('world_path')
+                ]
+            )
+        ]
+    else:
+        gazebo_env_variables = [
+            SetEnvironmentVariable(
+                name='IGN_GAZEBO_SYSTEM_PLUGIN_PATH',
+                value=[
+                    EnvironmentVariable(
+                        'IGN_GAZEBO_SYSTEM_PLUGIN_PATH',
+                        default_value=''
+                    ), ':',
+                    EnvironmentVariable(
+                        'LD_LIBRARY_PATH',
+                        default_value=''
+                    ), ':',
+                    LaunchConfiguration('ignition_gazebo_system_plugin_path')
+                ]
+            ),
+            SetEnvironmentVariable(
+                name='IGN_GAZEBO_PHYSICS_ENGINE_PATH',
+                value=[
+                    EnvironmentVariable(
+                        'IGN_GAZEBO_PHYSICS_ENGINE_PATH',
+                        default_value=''
+                    ), ':',
+                    EnvironmentVariable(
+                        'LD_LIBRARY_PATH',
+                        default_value=''
+                    ), ':',
+                    LaunchConfiguration('ignition_gazebo_physics_engine_path')
+                ]
+            ),
+            SetEnvironmentVariable(
+                name='IGN_FILE_PATH',
+                value=[
+                    EnvironmentVariable(
+                        'IGN_FILE_PATH',
+                        default_value=''
+                    ), ':',
+                    os.path.join(
+                        this_pkg_share_dir,
+                        'models',
+                        'urdf'
+                    ), ':',
+                    LaunchConfiguration('model_resource_path')
+                ]
+            ),
+            SetEnvironmentVariable(
+                name='IGN_GAZEBO_RESOURCE_PATH',
+                value=[
+                    EnvironmentVariable(
+                        'IGN_GAZEBO_RESOURCE_PATH',
+                        default_value=''
+                    ), ':',
+                    os.path.join(
+                        this_pkg_share_dir, 'worlds', 'ignition'
+                    ), ':',
+                    os.path.join(
+                        this_pkg_share_dir, '..'
+                    ), ':',
+                    LaunchConfiguration('resource_package_name'), '/..:',
+                    LaunchConfiguration('world_path')
+                ]
+            )
+        ]
+
+    return gazebo_env_variables + [
         SetEnvironmentVariable(
             name='SDF_PATH',
             value=[
@@ -171,38 +276,6 @@ def generate_local_environment_variables():
                     'urdf'
                 ), ':',
                 LaunchConfiguration('model_resource_path')
-            ]
-        ),
-        SetEnvironmentVariable(
-            name='IGN_FILE_PATH',
-            value=[
-                EnvironmentVariable(
-                    'IGN_FILE_PATH',
-                    default_value=''
-                ), ':',
-                os.path.join(
-                    this_pkg_share_dir,
-                    'models',
-                    'urdf'
-                ), ':',
-                LaunchConfiguration('model_resource_path')
-            ]
-        ),
-        SetEnvironmentVariable(
-            name='IGN_GAZEBO_RESOURCE_PATH',
-            value=[
-                EnvironmentVariable(
-                    'IGN_GAZEBO_RESOURCE_PATH',
-                    default_value=''
-                ), ':',
-                os.path.join(
-                    this_pkg_share_dir, 'worlds', 'ignition'
-                ), ':',
-                os.path.join(
-                    this_pkg_share_dir, '..'
-                ), ':',
-                LaunchConfiguration('resource_package_name'), '/..:',
-                LaunchConfiguration('world_path')
             ]
         )
     ]
@@ -221,6 +294,9 @@ def generate_launch_nodes():
         event=Shutdown()
     )
 
+    simulator_command = ['ign', 'gazebo']
+    simulator_command = ['gz', 'sim']
+
     return [
         GroupAction(actions=[
             PushRosNamespace(
@@ -228,8 +304,8 @@ def generate_launch_nodes():
             ),
             ExecuteProcess(
                 shell=True,
-                cmd=[
-                    'ign', 'gazebo', '-s', '-r', world_file
+                cmd=simulator_command + [
+                    '-s', '-r', world_file
                 ],
                 name='ign_gazebo',
                 output=output,
@@ -240,8 +316,8 @@ def generate_launch_nodes():
             ),
             ExecuteProcess(
                 shell=True,
-                cmd=[
-                    'ign', 'gazebo', '-s', '-r', '-v4', world_file
+                cmd=simulator_command + [
+                    '-s', '-r', '-v4', world_file
                 ],
                 name='ign_gazebo',
                 output=output,
@@ -252,14 +328,13 @@ def generate_launch_nodes():
             ),
             ExecuteProcess(
                 shell=True,
-                cmd=[
-                    'ign', 'gazebo',
+                cmd=simulator_command + [
                     '-g', world_file,
                     '--gui-config', sim_gui_config_file_path
                 ],
                 name='ign_gui',
                 output=output,
-                respawn='true',
+                respawn=True,
                 condition=IfCondition(LaunchConfiguration('use_sim_gui'))
             ),
             IncludeLaunchDescription(
