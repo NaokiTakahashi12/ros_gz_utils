@@ -169,9 +169,19 @@ def generate_launch_nodes():
         '-Y', LaunchConfiguration('spawn_orientation_y')
     ]
 
+    gz_version_env_name = 'IGNITION_VERSION'
+    ros_gz_package_name = 'ros_ign_gazebo'
+
+    if os.getenv(gz_version_env_name) is None:
+        raise KeyError('Please export ' + gz_version_env_name)
+    if os.getenv(gz_version_env_name) == 'garden':
+        ros_gz_package_name = 'ros_gz_sim'
+    else:
+        ros_gz_package_name = 'ros_ign_gazebo'
+
     return [
         Node(
-            package='ros_ign_gazebo',
+            package=ros_gz_package_name,
             executable='create',
             name=LaunchConfiguration('spawn_node_name'),
             namespace=namespace,
@@ -198,7 +208,7 @@ def generate_launch_nodes():
             )
         ),
         Node(
-            package='ros_ign_gazebo',
+            package=ros_gz_package_name,
             executable='create',
             name=LaunchConfiguration('spawn_node_name'),
             namespace=namespace,
@@ -222,27 +232,55 @@ def generate_launch_nodes():
 def generate_local_environment_variables():
     this_pkg_share_dir = get_package_share_directory('ros_gz_utils')
 
-    return [
+    gazebo_env_variables = []
+
+    gz_version_env_name = 'IGNITION_VERSION'
+
+    if os.getenv(gz_version_env_name) is None:
+        raise KeyError('Please export ' + gz_version_env_name)
+    if os.getenv(gz_version_env_name) == 'garden':
+        gazebo_env_variables = [
+            SetEnvironmentVariable(
+                name='GZ_FILE_PATH',
+                value=[
+                    EnvironmentVariable(
+                        'GZ_FILE_PATH',
+                        default_value=''
+                    ), ':',
+                    os.path.join(
+                        this_pkg_share_dir,
+                        'models',
+                        'urdf'
+                    ),
+                    LaunchConfiguration('robot_model_path')
+                ]
+            )
+        ]
+    else:
+        gazebo_env_variables = [
+            SetEnvironmentVariable(
+                name='IGN_FILE_PATH',
+                value=[
+                    EnvironmentVariable(
+                        'IGN_FILE_PATH',
+                        default_value=''
+                    ), ':',
+                    os.path.join(
+                        this_pkg_share_dir,
+                        'models',
+                        'urdf'
+                    ),
+                    LaunchConfiguration('robot_model_path')
+                ]
+            )
+        ]
+
+    return gazebo_env_variables + [
         SetEnvironmentVariable(
             name='SDF_PATH',
             value=[
                 EnvironmentVariable(
                     'SDF_PATH',
-                    default_value=''
-                ), ':',
-                os.path.join(
-                    this_pkg_share_dir,
-                    'models',
-                    'urdf'
-                ),
-                LaunchConfiguration('robot_model_path')
-            ]
-        ),
-        SetEnvironmentVariable(
-            name='IGN_FILE_PATH',
-            value=[
-                EnvironmentVariable(
-                    'IGN_FILE_PATH',
                     default_value=''
                 ), ':',
                 os.path.join(
