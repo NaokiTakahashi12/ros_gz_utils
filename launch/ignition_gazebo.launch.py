@@ -294,8 +294,15 @@ def generate_launch_nodes():
         event=Shutdown()
     )
 
-    simulator_command = ['ign', 'gazebo']
-    simulator_command = ['gz', 'sim']
+    gz_version_env_name = 'IGNITION_VERSION'
+    simulator_command = []
+
+    if os.getenv(gz_version_env_name) is None:
+        raise KeyError('Please export ' + gz_version_env_name)
+    if os.getenv(gz_version_env_name) == 'garden':
+        simulator_command = ['gz', 'sim']
+    else:
+        simulator_command = ['ign', 'gazebo']
 
     return [
         GroupAction(actions=[
