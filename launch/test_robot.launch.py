@@ -133,12 +133,24 @@ def generate_launch_nodes():
         LaunchConfiguration('robot_model_file')
     ])
 
+    gz_version_env_name = 'IGNITION_VERSION'
+    old_style_plugin = ''
+
+    if os.getenv(gz_version_env_name) is None:
+        raise KeyError('Please export ' + gz_version_env_name)
+    if os.getenv(gz_version_env_name) == 'garden':
+        old_style_plugin = 'false'
+    else:
+        old_style_plugin = 'true'
+
     robot_description = {
         'robot_description': Command([
             'xacro ',
             urdf_file,
             ' use_fake_hardware:=',
-            LaunchConfiguration('use_fake_hardware')
+            LaunchConfiguration('use_fake_hardware'),
+            ' old_compatible:=',
+            old_style_plugin
         ])
     }
 

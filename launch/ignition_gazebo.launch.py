@@ -138,7 +138,7 @@ def generate_local_environment_variables():
     if os.getenv(gz_version_env_name) == 'garden':
         gazebo_env_variables = [
             SetEnvironmentVariable(
-                name='GZ_GAZEBO_SYSTEM_PLUGIN_PATH',
+                name='GZ_SIM_SYSTEM_PLUGIN_PATH',
                 value=[
                     EnvironmentVariable(
                         'GZ_GAZEBO_SYSTEM_PLUGIN_PATH',
@@ -207,6 +207,7 @@ def generate_local_environment_variables():
                         'IGN_GAZEBO_SYSTEM_PLUGIN_PATH',
                         default_value=''
                     ), ':',
+                    addional_colcon_ws_gz_plugins,
                     EnvironmentVariable(
                         'LD_LIBRARY_PATH',
                         default_value=''
