@@ -207,7 +207,6 @@ def generate_local_environment_variables():
                         'IGN_GAZEBO_SYSTEM_PLUGIN_PATH',
                         default_value=''
                     ), ':',
-                    addional_colcon_ws_gz_plugins,
                     EnvironmentVariable(
                         'LD_LIBRARY_PATH',
                         default_value=''

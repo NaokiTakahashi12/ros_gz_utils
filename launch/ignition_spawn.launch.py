@@ -199,7 +199,7 @@ def generate_launch_nodes():
                     ]),
                     ' ',
                     LaunchConfiguration('xacro_args')
-                ]),
+                ])
             ]
             + spawn_model_pose
             + world,

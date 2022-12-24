@@ -134,14 +134,14 @@ def generate_launch_nodes():
     ])
 
     gz_version_env_name = 'IGNITION_VERSION'
-    old_style_plugin = ''
+    old_style_plugin_option = ''
 
     if os.getenv(gz_version_env_name) is None:
         raise KeyError('Please export ' + gz_version_env_name)
     if os.getenv(gz_version_env_name) == 'garden':
-        old_style_plugin = 'false'
+        old_style_plugin_option = 'old_compatible:=false'
     else:
-        old_style_plugin = 'true'
+        old_style_plugin_option = 'old_compatible:=true'
 
     robot_description = {
         'robot_description': Command([
@@ -149,8 +149,7 @@ def generate_launch_nodes():
             urdf_file,
             ' use_fake_hardware:=',
             LaunchConfiguration('use_fake_hardware'),
-            ' old_compatible:=',
-            old_style_plugin
+            ' ', old_style_plugin_option
         ])
     }
 

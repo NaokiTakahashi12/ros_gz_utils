@@ -103,6 +103,16 @@ def generate_launch_nodes():
     world_file = LaunchConfiguration('world_file')
     use_sim_time = LaunchConfiguration('use_sim_time')
 
+    gz_version_env_name = 'IGNITION_VERSION'
+    old_style_plugin_option = ''
+
+    if os.getenv(gz_version_env_name) is None:
+        raise KeyError('Please export ' + gz_version_env_name)
+    if os.getenv(gz_version_env_name) == 'garden':
+        old_style_plugin_option = 'old_compatible:=false'
+    else:
+        old_style_plugin_option = 'old_compatible:=true'
+
     return [
         IncludeLaunchDescription(
             AnyLaunchDescriptionSource([
@@ -126,8 +136,10 @@ def generate_launch_nodes():
                 'namespace': namespace,
                 'use_sim_time': use_sim_time,
                 'world_name': world_name,
+                'robot_model_from_topic': 'false',
                 'robot_model_file': LaunchConfiguration('robot_model_file'),
-                'robot_model_path': LaunchConfiguration('robot_model_path')
+                'robot_model_path': LaunchConfiguration('robot_model_path'),
+                'xacro_args': old_style_plugin_option
             }.items()
         ),
         IncludeLaunchDescription(
