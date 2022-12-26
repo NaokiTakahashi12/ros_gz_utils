@@ -35,6 +35,7 @@ install(
 install(
   PROGRAMS
     scripts/kill_ign.bash
+    scripts/kill_ros_gz.bash
   DESTINATION
     "lib/${PROJECT_NAME}"
 )

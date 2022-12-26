@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://ros.org/wiki/xacro" name="test_robot">
   <xacro:arg name="use_fake_hardware" default="false"/>
+  <xacro:arg name="old_compatible" default="false"/>
   <link name="base_link">
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <inertial>
@@ -112,14 +113,26 @@
     <origin xyz="0 0 0.125" rpy="0 0 0"/>
   </xacro:scan_link_macro>
   <gazebo>
-    <plugin filename="ignition-gazebo-joint-state-publisher-system" name="ignition::gazebo::systems::JointStatePublisher">
-    </plugin>
-    <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
-      <parameters>$(find ros_gz_utils)/config/test_robot_controllers.yaml</parameters>
-      <ros>
-        <remapping>joint_states:=joint_state_broadcaster/joint_states</remapping>
-      </ros>
-    </plugin>
+    <xacro:unless value="$(arg old_compatible)">
+      <plugin filename="ignition-gazebo-joint-state-publisher-system" name="ignition::gazebo::systems::JointStatePublisher">
+      </plugin>
+      <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+        <parameters>$(find ros_gz_utils)/config/test_robot_controllers.yaml</parameters>
+        <ros>
+          <remapping>joint_states:=joint_state_broadcaster/joint_states</remapping>
+        </ros>
+      </plugin>
+    </xacro:unless>
+    <xacro:if value="$(arg old_compatible)">
+      <plugin filename="ignition-gazebo-joint-state-publisher-system" name="ignition::gazebo::systems::JointStatePublisher">
+      </plugin>
+      <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
+        <parameters>$(find ros_gz_utils)/config/test_robot_controllers.yaml</parameters>
+        <ros>
+          <remapping>joint_states:=joint_state_broadcaster/joint_states</remapping>
+        </ros>
+      </plugin>
+    </xacro:if>
   </gazebo>
   <ros2_control name="IgnitionSystem" type="system">
     <hardware>
@@ -127,21 +140,26 @@
         <plugin>fake_components/GenericSystem</plugin>
       </xacro:if>
       <xacro:unless value="$(arg use_fake_hardware)">
-        <plugin>ign_ros2_control/IgnitionSystem</plugin>
+        <xacro:unless value="$(arg old_compatible)">
+          <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+        </xacro:unless>
+        <xacro:if value="$(arg old_compatible)">
+          <plugin>ign_ros2_control/IgnitionSystem</plugin>
+        </xacro:if>
       </xacro:unless>
     </hardware>
     <joint name="left_wheel_joint">
       <command_interface name="velocity">
-        <param name="min">-1</param>
-        <param name="max">1</param>
+        <param name="min">-5</param>
+        <param name="max">5</param>
       </command_interface>
       <state_interface name="position"/>
       <state_interface name="velocity"/>
     </joint>
     <joint name="right_wheel_joint">
       <command_interface name="velocity">
-        <param name="min">-1</param>
-        <param name="max">1</param>
+        <param name="min">-5</param>
+        <param name="max">5</param>
       </command_interface>
       <state_interface name="position"/>
       <state_interface name="velocity"/>

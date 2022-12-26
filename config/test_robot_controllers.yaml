@@ -26,14 +26,14 @@ diff_drive_controller:
       has_velocity_limits: true
       has_acceleration_limits: true
       has_jerk_limits: true
-      max_velocity: 0.99
+      max_velocity: 1.6
       max_acceleration: 0.6
       max_jerk: !!double 15.0
     anguler.z:
       has_velocity_limits: true
       has_acceleration_limits: true
       has_jerk_limits: true
-      max_velocity: 0.99
+      max_velocity: 1.6
       max_acceleration: 0.8
       max_jerk: !!double 10.0
 

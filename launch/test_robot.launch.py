@@ -20,6 +20,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+# ros2 topic pub -r 5 /diff_drive_controller/cmd_vel_unstamped geometry_msgs/msg/Twist "{linear: {x: 1.0}, angular: {z: 1.0}}"
+
+
 import os
 
 from ament_index_python.packages import get_package_share_directory
@@ -133,12 +136,23 @@ def generate_launch_nodes():
         LaunchConfiguration('robot_model_file')
     ])
 
+    gz_version_env_name = 'IGNITION_VERSION'
+    old_style_plugin_option = ''
+
+    if os.getenv(gz_version_env_name) is None:
+        raise KeyError('Please export ' + gz_version_env_name)
+    if os.getenv(gz_version_env_name) == 'garden':
+        old_style_plugin_option = 'old_compatible:=false'
+    else:
+        old_style_plugin_option = 'old_compatible:=true'
+
     robot_description = {
         'robot_description': Command([
             'xacro ',
             urdf_file,
             ' use_fake_hardware:=',
-            LaunchConfiguration('use_fake_hardware')
+            LaunchConfiguration('use_fake_hardware'),
+            ' ', old_style_plugin_option
         ])
     }
 
