@@ -109,9 +109,9 @@ def generate_launch_nodes():
     if os.getenv(gz_version_env_name) is None:
         raise KeyError('Please export ' + gz_version_env_name)
     if os.getenv(gz_version_env_name) == 'garden':
-        old_style_plugin_option = 'old_compatible:=false'
+        old_style_plugin_option = 'ign_compatible:=false'
     else:
-        old_style_plugin_option = 'old_compatible:=true'
+        old_style_plugin_option = 'ign_compatible:=true'
 
     return [
         IncludeLaunchDescription(

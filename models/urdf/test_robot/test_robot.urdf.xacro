@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://ros.org/wiki/xacro" name="test_robot">
   <xacro:arg name="use_fake_hardware" default="false"/>
-  <xacro:arg name="old_compatible" default="false"/>
+  <xacro:arg name="ign_compatible" default="false"/>
   <link name="base_link">
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <inertial>
@@ -113,7 +113,7 @@
     <origin xyz="0 0 0.125" rpy="0 0 0"/>
   </xacro:scan_link_macro>
   <gazebo>
-    <xacro:unless value="$(arg old_compatible)">
+    <xacro:unless value="$(arg ign_compatible)">
       <plugin filename="ignition-gazebo-joint-state-publisher-system" name="ignition::gazebo::systems::JointStatePublisher">
       </plugin>
       <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
@@ -123,7 +123,7 @@
         </ros>
       </plugin>
     </xacro:unless>
-    <xacro:if value="$(arg old_compatible)">
+    <xacro:if value="$(arg ign_compatible)">
       <plugin filename="ignition-gazebo-joint-state-publisher-system" name="ignition::gazebo::systems::JointStatePublisher">
       </plugin>
       <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
@@ -140,10 +140,10 @@
         <plugin>fake_components/GenericSystem</plugin>
       </xacro:if>
       <xacro:unless value="$(arg use_fake_hardware)">
-        <xacro:unless value="$(arg old_compatible)">
+        <xacro:unless value="$(arg ign_compatible)">
           <plugin>gz_ros2_control/GazeboSimSystem</plugin>
         </xacro:unless>
-        <xacro:if value="$(arg old_compatible)">
+        <xacro:if value="$(arg ign_compatible)">
           <plugin>ign_ros2_control/IgnitionSystem</plugin>
         </xacro:if>
       </xacro:unless>
