@@ -20,6 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import os
+
 from launch import LaunchService
 from launch import LaunchDescription
 from launch.actions import (
@@ -99,10 +101,74 @@ def generate_launch_nodes():
         event=Shutdown()
     )
 
-    return [
-        GroupAction([
+    gz_version_env_name = 'IGNITION_VERSION'
+    ros_gz_package_name = 'ros_ign_image'
+
+    if os.getenv(gz_version_env_name) is None:
+        gz_version_env_name = 'GZ_VERSION'
+        if os.getenv(gz_version_env_name) is None:
+            raise KeyError('Please export ' + gz_version_env_name)
+    if os.getenv(gz_version_env_name) == 'garden':
+        ros_gz_package_name = 'ros_gz_image'
+    else:
+        ros_gz_package_name = 'ros_ign_image'
+
+    static_tf_publisher = []
+    ros_distro_env_name = 'ROS_DISTRO'
+
+    if os.getenv(ros_distro_env_name) is None:
+        raise KeyError('Please export ' + ros_distro_env_name)
+    if os.getenv(ros_distro_env_name) == 'humble':
+        static_tf_publisher = [
             Node(
-                package='ros_ign_image',
+                package='tf2_ros',
+                executable='static_transform_publisher',
+                name=LaunchConfiguration('stf_node_name'),
+                output=output,
+                parameters=[
+                    {'use_sim_time': True}
+                ],
+                arguments=[
+                    '--frame-id', ros_frame_id,
+                    '--child-frame-id', ign_frame_id,
+                    '--x', '0',
+                    '--y', '0',
+                    '--z', '0',
+                    '--roll', '0',
+                    '--pitch', '0',
+                    '--yaw', '0'
+                ],
+                condition=IfCondition(
+                    LaunchConfiguration('with_stf')
+                )
+            )
+        ]
+    elif os.getenv(ros_distro_env_name) == 'galactic':
+        static_tf_publisher = [
+            Node(
+                package='tf2_ros',
+                executable='static_transform_publisher',
+                name=LaunchConfiguration('stf_node_name'),
+                output=output,
+                parameters=[
+                    {'use_sim_time': True}
+                ],
+                arguments=[
+                    '0', '0', '0', '0', '0', '0',
+                    ros_frame_id, ign_frame_id
+                ],
+                condition=IfCondition(
+                    LaunchConfiguration('with_stf')
+                )
+            )
+        ]
+    else:
+        raise RuntimeError('Support humble or galactic')
+
+    return [
+        GroupAction(static_tf_publisher + [
+            Node(
+                package=ros_gz_package_name,
                 executable='image_bridge',
                 name=LaunchConfiguration('bridge_node_name'),
                 on_exit=[
@@ -122,22 +188,6 @@ def generate_launch_nodes():
                     ([ign_topic, '/compressedDepth'], [ros_topic, '/compressedDepth']),
                     ([ign_topic, '/theora'], [ros_topic, '/theora'])
                 ]
-            ),
-            Node(
-                package='tf2_ros',
-                executable='static_transform_publisher',
-                name=LaunchConfiguration('stf_node_name'),
-                output=output,
-                parameters=[
-                    {'use_sim_time': True}
-                ],
-                arguments=[
-                    '0', '0', '0', '0', '0', '0',
-                    ros_frame_id, ign_frame_id
-                ],
-                condition=IfCondition(
-                    LaunchConfiguration('with_stf')
-                )
             )
         ])
     ]

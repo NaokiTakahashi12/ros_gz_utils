@@ -134,7 +134,9 @@ def generate_local_environment_variables():
     gz_version_env_name = 'IGNITION_VERSION'
 
     if os.getenv(gz_version_env_name) is None:
-        raise KeyError('Please export ' + gz_version_env_name)
+        gz_version_env_name = 'GZ_VERSION'
+        if os.getenv(gz_version_env_name) is None:
+            raise KeyError('Please export ' + gz_version_env_name)
     if os.getenv(gz_version_env_name) == 'garden':
         gazebo_env_variables = [
             SetEnvironmentVariable(
@@ -184,7 +186,7 @@ def generate_local_environment_variables():
                 name='GZ_SIM_RESOURCE_PATH',
                 value=[
                     EnvironmentVariable(
-                        'GZ_GAZEBO_RESOURCE_PATH',
+                        'GZ_SIM_RESOURCE_PATH',
                         default_value=''
                     ), ':',
                     os.path.join(
