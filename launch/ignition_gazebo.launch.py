@@ -184,7 +184,7 @@ def generate_local_environment_variables():
                 name='GZ_SIM_RESOURCE_PATH',
                 value=[
                     EnvironmentVariable(
-                        'GZ_GAZEBO_RESOURCE_PATH',
+                        'GZ_SIM_RESOURCE_PATH',
                         default_value=''
                     ), ':',
                     os.path.join(
