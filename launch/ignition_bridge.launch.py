@@ -64,7 +64,7 @@ def generate_declare_launch_arguments():
         ),
         DeclareLaunchArgument(
             'convert_args',
-            description='Convert message argument for ros_ign parameter_bridge (string)'
+            description='Convert message argument for ros_ign(ros_gz) parameter_bridge (string)'
         ),
         DeclareLaunchArgument(
             'ign_frame_id',
@@ -105,6 +105,18 @@ def generate_launch_nodes():
     exit_event = EmitEvent(
         event=Shutdown()
     )
+
+    gz_version_env_name = 'IGNITION_VERSION'
+    ros_gz_package_name = 'ros_ign_gazebo'
+
+    if os.getenv(gz_version_env_name) is None:
+        gz_version_env_name = 'GZ_VERSION'
+        if os.getenv(gz_version_env_name) is None:
+            raise KeyError('Please export ' + gz_version_env_name)
+    if os.getenv(gz_version_env_name) == 'garden':
+        ros_gz_package_name = 'ros_gz_bridge'
+    else:
+        ros_gz_package_name = 'ros_ign_bridge'
 
     static_tf_publisher = []
     ros_distro_env_name = 'ROS_DISTRO'
@@ -161,7 +173,7 @@ def generate_launch_nodes():
     return [
         GroupAction(static_tf_publisher + [
             Node(
-                package='ros_ign_bridge',
+                package=ros_gz_package_name,
                 executable='parameter_bridge',
                 name=LaunchConfiguration('bridge_node_name'),
                 on_exit=[

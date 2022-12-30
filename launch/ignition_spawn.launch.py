@@ -173,7 +173,9 @@ def generate_launch_nodes():
     ros_gz_package_name = 'ros_ign_gazebo'
 
     if os.getenv(gz_version_env_name) is None:
-        raise KeyError('Please export ' + gz_version_env_name)
+        gz_version_env_name = 'GZ_VERSION'
+        if os.getenv(gz_version_env_name) is None:
+            raise KeyError('Please export ' + gz_version_env_name)
     if os.getenv(gz_version_env_name) == 'garden':
         ros_gz_package_name = 'ros_gz_sim'
     else:
@@ -237,7 +239,9 @@ def generate_local_environment_variables():
     gz_version_env_name = 'IGNITION_VERSION'
 
     if os.getenv(gz_version_env_name) is None:
-        raise KeyError('Please export ' + gz_version_env_name)
+        gz_version_env_name = 'GZ_VERSION'
+        if os.getenv(gz_version_env_name) is None:
+            raise KeyError('Please export ' + gz_version_env_name)
     if os.getenv(gz_version_env_name) == 'garden':
         gazebo_env_variables = [
             SetEnvironmentVariable(
