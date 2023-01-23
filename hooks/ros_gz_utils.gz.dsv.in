@@ -1,0 +1,3 @@
+prepend-non-duplicate;GZ_SIM_RESOURCE_PATH;@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@/worlds/ignition
+prepend-non-duplicate;GZ_FILE_PATH;@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@/models/urdf
+prepend-non-duplicate;SDF_PATH;@CMAKE_INSTALL_PREFIX@/share/@PROJECT_NAME@/models/urdf
