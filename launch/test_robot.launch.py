@@ -20,7 +20,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# ros2 topic pub -r 5 /diff_drive_controller/cmd_vel_unstamped geometry_msgs/msg/Twist "{linear: {x: 1.0}, angular: {z: 1.0}}"
+# ros2 topic pub -r 5 \
+# /diff_drive_controller/cmd_vel_unstamped geometry_msgs/msg/Twist \
+# "{linear: {x: 1.0}, angular: {z: 1.0}}"
 
 
 import os
